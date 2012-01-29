@@ -41,12 +41,11 @@ class Scroll {
 				jQuery('#scroll-send').click(function(){
 					var data = {
 						action: 'scroll_send',
-						post_id: '<?php echo esc_js( get_queried_object_id() ); ?>';
+						post_id: '<?php echo esc_js( get_queried_object_id() ); ?>'
 					};
 					jQuery.ajax( ajaxurl, data, function( response ) {
 						if ( response.status == 'ok') {
-							
-							// Add the link below the submit button
+							window.open(response.scroll_edit_link);
 						}
 						return false;
 					});
@@ -75,7 +74,31 @@ class Scroll {
 				'scroll_edit_link' => $scroll_edit_link,
 				'user_api_key' => $api_key,
 			);
+			
 		echo json_encode( $return_data );
+		
+		?>
+		<script type="text/javascript">
+		  jQuery(document).ready(function() {
+    		jQuery.ajax({
+    			type: 'POST',
+    			url: 'http://lvh.me:3000/s/wp',
+    			xhrFields: {
+    				withCredentials: true
+    			},
+    			headers: {'X-Requested-With': 'XMLHttpRequest'},
+    			data: <?php $return_data ?>,
+    			error: function(jqXHR){
+    				console.log(jqXHR.responseText);
+    			},
+    			success: function(data){
+    				window.open(data['link']);
+    			}
+    		});
+  		})
+  		</script>
+  		<?php
+		
 		die();
 		
 	}
