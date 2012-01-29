@@ -81,28 +81,6 @@ class Scroll {
 		
 		$response = $request->request( $url, array( 'method' => 'POST', 'body' => $return_data) );
 		
-		?>
-		<script type="text/javascript">
-		  jQuery(document).ready(function() {
-    		jQuery.ajax({
-    			type: 'POST',
-    			url: 'http://lvh.me:3000/s/wp',
-    			xhrFields: {
-    				withCredentials: true
-    			},
-    			headers: {'X-Requested-With': 'XMLHttpRequest'},
-    			data: <?php $return_data ?>,
-    			error: function(jqXHR){
-    				console.log(jqXHR.responseText);
-    			},
-    			success: function(data){
-    				window.open(data['link']);
-    			}
-    		});
-  		})
-  		</script>
-  		<?php
-		
 		die();
 		
 	}
