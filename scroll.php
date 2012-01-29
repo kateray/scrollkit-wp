@@ -75,7 +75,7 @@ class Scroll {
 				'user_api_key' => $api_key,
 			);
 					
-		$url = 'http://lvh.me:3000/s/wp'
+		$url = 'http://lvh.me:3000/s/wp';
 		
 		$request  = new Wp_Http();
 		
