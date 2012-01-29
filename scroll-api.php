@@ -1,15 +1,4 @@
 <?php
-/*
-Plugin Name: Scroll
-Plugin URI: http://scrollmkr.com
-Description: Removes WP template from a page or post.
-Version: .1
-Author: Scroll
-Author URI: http://scrollmkr.com
-License: GPL2
-*/
-
-
 $root = dirname(dirname(dirname(dirname(__FILE__))));
 
 if (file_exists($root.'/wp-load.php')) {

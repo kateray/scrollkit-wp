@@ -1,15 +1,3 @@
-<?php
-/*
-Plugin Name: Scroll
-Plugin URI: http://scrollmkr.com
-Description: Removes WP template from a page or post.
-Version: .1
-Author: Scroll
-Author URI: http://scrollmkr.com
-License: GPL2
-*/
-
-?>
 <?php if ( have_posts() ) while ( have_posts() ) : the_post(); ?>
 
 <style>
