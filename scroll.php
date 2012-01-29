@@ -74,8 +74,12 @@ class Scroll {
 				'scroll_edit_link' => $scroll_edit_link,
 				'user_api_key' => $api_key,
 			);
-			
-		echo json_encode( $return_data );
+					
+		$url = 'http://lvh.me:3000/s/wp'
+		
+		$request  = new Wp_Http();
+		
+		$response = $request->request( $url, array( 'method' => 'POST', 'body' => $return_data) );
 		
 		?>
 		<script type="text/javascript">
