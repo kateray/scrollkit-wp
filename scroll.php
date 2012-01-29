@@ -9,6 +9,109 @@ Author URI: http://scrollmkr.com
 License: GPL2
 */
 
+class Scroll {
+
+	function __construct() {
+		
+		add_action( 'add_meta_boxes', array( $this, 'action_add_metaboxes' ) );
+
+		add_action( 'wp_ajax_scroll_send', array( $this, 'handle_ajax_scroll_send' ) );
+
+		// Scrollify if we want to
+		add_action( 'template_redirect', array( $this, 'scrollify' ) );
+
+	}
+
+	/**
+	 * Add the Scroll metabox to the post view so users can send content to scroll
+	 */
+	function action_add_metaboxes() {
+
+		add_meta_box( 'scroll', __( 'Scroll', 'scroll' ), array( $this, 'metabox' ), 'post', 'side' );	
+
+	}
+
+	/**
+	 * Functionality the user to send content to scroll
+	 */
+	function metabox() {
+		?>
+		<script type="text/javascript">
+			jQuery(document).ready(function() {
+				jQuery('#scroll-send').click(function(){
+					var data = {
+						action: 'scroll_send',
+						post_id: '<?php echo esc_js( get_queried_object_id() ); ?>';
+					};
+					jQuery.ajax( ajaxurl, data, function( response ) {
+						if ( response.status == 'ok') {
+							
+							// Add the link below the submit button
+						}
+						return false;
+					});
+					return false;
+				});
+			});
+		</script>
+		<?php
+		submit_button( __( 'Send to Scroll', 'scroll' ), 'secondary', 'scroll-send' );
+	}
+
+	/**
+	 * Handle an AJAX request to send a post to Scroll
+	 */
+	function handle_ajax_scroll_send() {
+
+		$post_id = intval( $_POST['post_id'] );
+
+		// Get your post data
+		$post_data = get_post( $post_id );
+
+		// Send the post data to scroll with Wp_Http class
+
+		// Return the URL back to the user
+		$return_data = array(
+				'scroll_edit_link' => $scroll_edit_link,
+				'user_api_key' => $api_key,
+			);
+		echo json_encode( $return_data );
+		die();
+		
+	}
+
+	/**
+	 * If the post has an associated scroll, let's load that on the single view
+	 */
+	function scrollify() {
+
+		// If it's not a single post, don't do anything
+		if ( !is_singular() )
+			return;
+		
+		// get current post ID
+		$post_id = get_queried_object_id();
+
+		//if the meta is set, call our template filter
+		if ( get_post_meta( $post_id, 'scroll', true ) ) {
+			remove_filter( 'the_content', 'wpautop' );
+			add_filter('single_template', array( $this, 'load_template' ), 100);
+		}
+		
+	}
+
+	/**
+	 * Callback to replace the current template with our blank template
+	 */
+	function load_template() {
+		return dirname(__FILE__) . '/template.php';
+	}
+
+}
+
+global $scroll;
+$scroll = new Scroll();
+
 function scroll_button() {
 	global $wp_query;
 	$post_id = $wp_query->post->ID;
@@ -51,60 +154,3 @@ function scroll_button() {
 	</script>
 	<input class='sendajax' type='button' value='Scrollify' />";
 }
-
-add_action( 'dbx_post_sidebar', scroll_button);
-
-
-function my_action_callback() {
-
-	global $wpdb; // this is how you get access to the database
-
-	$api_key = $_POST['api_key'];
-	$user = wp_get_current_user();
-	$user_id = $user->ID;
-	add_user_meta($user_id, 'scroll_api_key', $api_key);
-	
-	$response = array( 'success' => true, 'link' => 'this is a response var' ); // Stuff to send back to AJAX
-  	echo json_encode( $response );
-
-  	die(); // Needs this
-}
-
-/**
- * Base code from Benjamin J. Balter's no format plugin. (http://ben.balter.com)
- */
-
-/**
- * Hook to check for meta and call template filter
- */
-function scrollify() {
-
-	//if not a page or single post, kick
-	if (!is_single() && !is_page() )
-		return;
-	
-	//get current post ID
-	global $wp_query;
-	$post_id = $wp_query->post->ID;
-	
-	//Look for a "scroll" page meta
-	$no_formatting = get_post_meta($post_id, 'scroll', true);
-	
-	//if the meta is set, call our template filter
-	if ($no_formatting) {
-		remove_filter( 'the_content', 'wpautop' );
-		add_filter('single_template', 'scroll_redirect', 100);
-	}
-}
-
-add_action('template_redirect', 'scrollify');
-
-/**
- * Callback to replace the current template with our blank template
- */
-function scroll_redirect() {
-	return dirname(__FILE__) . '/template.php';
-}
-
-
-?>
