@@ -68,18 +68,18 @@ class Scroll {
 		$post_data = get_post( $post_id );
 
 		// Send the post data to scroll with Wp_Http class
+		$url = 'http://lvh.me:3000/s/wp';
+		
+		$request  = new Wp_Http();
+		
+		$response = $request->request( $url, array( 'method' => 'POST', 'body' => $post_data) );
 
 		// Return the URL back to the user
 		$return_data = array(
 				'scroll_edit_link' => $scroll_edit_link,
 				'user_api_key' => $api_key,
 			);
-					
-		$url = 'http://lvh.me:3000/s/wp';
 		
-		$request  = new Wp_Http();
-		
-		$response = $request->request( $url, array( 'method' => 'POST', 'body' => $return_data) );
 		
 		die();
 		
