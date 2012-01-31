@@ -70,9 +70,9 @@ class Scroll {
 		// Send the post data to scroll with Wp_Http class
 		$url = 'http://lvh.me:3000/s/wp';
 		
-		$request  = new Wp_Http();
+		$args = array('body' => $post_data);
 		
-		$response = $request->request( $url, array( 'method' => 'POST', 'body' => $post_data) );
+		$resp = wp_remote_post( $url, $args );
 
 		// Return the URL back to the user
 		$return_data = array(
