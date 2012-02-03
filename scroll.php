@@ -41,9 +41,9 @@ class Scroll {
 				jQuery('#scroll-send').click(function(){
 					var data = {
 						action: 'scroll_send',
-						post_id: '<?php echo esc_js( get_queried_object_id() ); ?>'
+						post_id: '<?php echo esc_js( intval($_GET["post"]) ); ?>'
 					};
-					jQuery.ajax( ajaxurl, data, function( response ) {
+					jQuery.post( ajaxurl, data, function( response ) {
 						if ( response.status == 'ok') {
 							window.open(response.scroll_edit_link);
 						}
@@ -60,19 +60,46 @@ class Scroll {
 	/**
 	 * Handle an AJAX request to send a post to Scroll
 	 */
-	function handle_ajax_scroll_send() {
-
+	function handle_ajax_scroll_send() {    
 		$post_id = intval( $_POST['post_id'] );
 
 		// Get your post data
-		$post_data = get_post( $post_id );
-
+		$post = get_post( $post_id );
+		$postID = $post->ID;
+		$post_title = $post->post_title;
+		$post_title = str_replace("'", "\'", $post_title);
+		$post_content = $post->post_content;
+		$post_content = preg_replace('/\s\s+/', '', $post_content);
+		$post_content = preg_replace('/\n/', '<br>', $post_content);
+		$post_content = str_replace('&nbsp;', '<br>', $post_content);
+		$post_content = str_replace("'", "\'", $post_content);
+		
 		// Send the post data to scroll with Wp_Http class
-		$url = 'http://lvh.me:3000/s/wp';
+		$url = 'http://scroll-dev.herokuapp.com/s/wp';
 		
-		$args = array('body' => $post_data);
-		
-		$resp = wp_remote_post( $url, $args );
+		$args = array('body' => $sendData);
+
+		$response = wp_remote_post( $url, array(
+		    'method' => "POST",
+		    'timeout' => '45',
+		    'redirection' => '5',
+		    'httpversion' => '1.0',
+		    'headers' => array(
+		      'X-Requested-With' => 'XMLHttpRequest'
+		    ),
+		    'body' => array('external_id' => $postID, 'title' => $post_title, 'content' => $post_content),
+		    'cookies' => array(),
+		    'sslverify' => false
+		  )
+		);
+
+		if( is_wp_error( $response ) ) {
+       echo 'Something went wrong!';
+    } else {
+       echo 'Response:<pre>';
+       print_r( $response );
+       echo '</pre>';
+    }
 
 		// Return the URL back to the user
 		$return_data = array(
