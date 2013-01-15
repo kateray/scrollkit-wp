@@ -9,7 +9,7 @@ $('#scrollkit-wp-convert').on 'click', (e)->
 
   $.ajax
     type: "POST"
-    url: "#{apiEndPoint}/new"
+    url: "#{apiEndpoint}/new"
     data: data
     error: (jqXHR) ->
       alert jqXHR.responseText
