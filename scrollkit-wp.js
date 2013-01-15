@@ -23,7 +23,7 @@
         return console.log(jqXHR);
       },
       success: function(data) {
-        alert("B-)");
+        window.open(data['link']);
         return console.log(data);
       }
     });
