@@ -16,10 +16,10 @@
     };
     return $.ajax({
       type: "POST",
-      url: "" + apiEndPoint + "/new",
+      url: "" + apiEndpoint + "/new",
       data: data,
       error: function(jqXHR) {
-        alert(jqXHR.responseText);
+        alert("check your console");
         return console.log(jqXHR);
       },
       success: function(data) {

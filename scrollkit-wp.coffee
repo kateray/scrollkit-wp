@@ -12,7 +12,7 @@ $('#scrollkit-wp-convert').on 'click', (e)->
     url: "#{apiEndpoint}/new"
     data: data
     error: (jqXHR) ->
-      alert jqXHR.responseText
+      alert "check your console"
       console.log jqXHR
 
     success: (data) =>
