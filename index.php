@@ -9,10 +9,19 @@ Author URI: http://scrollkit.com
 License: GPL2
 */
 
+if ( !defined('SCROLLKIT_URL') )
+	define( 'SCROLLKIT_URL', plugin_dir_url( __FILE__ ) );
+if ( !defined('SCROLLKIT_PATH') )
+	define( 'SCROLLKIT_PATH', plugin_dir_path( __FILE__ ) );
+if ( !defined('SCROLLKIT_BASENAME') )
+	define( 'SCROLLKIT_BASENAME', plugin_basename( __FILE__ ) );
+
+define( 'SCROLLKIT_FILE', __FILE__ );
+
 class Scroll {
 
 	function __construct() {
-		
+
 		add_action( 'add_meta_boxes', array( $this, 'action_add_metaboxes' ) );
 
     // add_action( 'wp_ajax_scroll_send', array( $this, 'handle_ajax_scroll_send' ) );
@@ -27,7 +36,7 @@ class Scroll {
 	 */
 	function action_add_metaboxes() {
 
-		add_meta_box( 'scroll', __( 'Scroll', 'scroll' ), array( $this, 'metabox' ), 'post', 'side' );	
+		add_meta_box( 'scroll', __( 'Scroll', 'scroll' ), array( $this, 'metabox' ), 'post', 'side' );
 
 	}
 
@@ -35,47 +44,15 @@ class Scroll {
 	 * Functionality the user to send content to scroll
 	 */
 	function metabox() {
-
+		wp_enqueue_script(
+			'scrollkit-wp',
+			SCROLLKIT_URL . 'scrollkit-wp.js',
+			array('jquery')
+		);
 		?>
-		<script type="text/javascript">
-			jQuery(document).ready(function() {
-				jQuery('#scroll-send').click(function(){
-				  '<?php
-				    global $wp_query;
-				    $post_id = intval($_GET["post"]);
-				    $post = get_post($post_id);
-				    $post_title = $post->post_title;
-				    $post_title = str_replace("'", "\'", $post_title);
-          	$post_content = $post->post_content;
-          	$post_content = preg_replace('/\s\s+/', '', $post_content);
-          	$post_content = preg_replace('/\n/', '<br>', $post_content);
-          	$post_content = str_replace('&nbsp;', '<br>', $post_content);
-          	$post_content = str_replace("'", "\'", $post_content);
-				   ?>'
-    			var sendData = {
-    				external_id: '<?php echo esc_js( $post_id ); ?>',
-    				title: '<?php echo esc_js( $post_title ); ?>',
-    				content: '<?php echo esc_js( $post_content ); ?>'
-    			}
-    			jQuery.ajax({
-    				type: 'POST',
-    				url: 'http://scrollmkr.com/s/wp',
-    				xhrFields: {
-    					withCredentials: true
-    				},
-    				headers: {'X-Requested-With': 'XMLHttpRequest'},
-    				data: sendData,
-    				error: function(jqXHR){
-    					console.log(jqXHR.responseText);
-    				},
-    				success: function(data){
-    					window.open(data['link']);
-    				}
-  				});
-				});
-			});
-		</script>
-		<input id='scroll-send' type='button' value='Send to Scroll' />
+			<button id="scrollkit-wp-convert" type="button">
+				Convert to Scroll
+			</button>
 		<?php
 	}
 
@@ -87,7 +64,7 @@ class Scroll {
 		// If it's not a single post, don't do anything
 		if ( !is_singular() )
 			return;
-		
+
 		// get current post ID
 		$post_id = get_queried_object_id();
 
@@ -96,7 +73,7 @@ class Scroll {
 			remove_filter( 'the_content', 'wpautop' );
 			add_filter('single_template', array( $this, 'load_template' ), 100);
 		}
-		
+
 	}
 
 	/**
