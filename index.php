@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: Scroll
-Plugin URI: http://scrollmkr.com
-Description: Removes WP template from a page or post.
-Version: .1
-Author: Scroll
-Author URI: http://scrollmkr.com
+Plugin URI: http://scrollkit.com
+Description: Adds a button to send a page's content to the scroll kit design interface, which generates custom html and css that override the page's default template.
+Version: 0.1
+Author: scroll kit
+Author URI: http://scrollkit.com
 License: GPL2
 */
 
