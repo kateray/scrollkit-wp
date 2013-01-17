@@ -64,16 +64,21 @@ class Scroll {
 	function update_post() {
 		$post_id = get_query_var('p');
 		$post = get_post($post_id);
-		$content_url = get_post_meta($post_id, 'scroll_content_url', true);
+		$content_url = get_post_meta($post_id, '_scroll_content_url', true);
 
 		if ( empty ( $post ) || empty ( $content_url ) ) {
+			// i think this is broken
 			return;
 		}
 
-		header ( 'Content-type: text/plain' );
 		$data = json_decode ( $this->fetch_url( $content_url ) ) ;
 
-		update_post_meta($post->ID, 'scroll', $data->content);
+		update_post_meta($post->ID, '_scroll_content', $data->content);
+		update_post_meta($post->ID, '_scroll_css', $data->css);
+		update_post_meta($post->ID, '_scroll_fonts', $data->fonts);
+
+		$script_string = implode($data->js, ',');
+		update_post_meta($post->ID, '_scroll_js', $script_string);
 
 		$edit = get_edit_post_link( $post->ID , '');
 		header("Location: $edit&message=1", true, 302);
@@ -86,8 +91,8 @@ class Scroll {
 		$post = get_post($post_id);
 		$data = json_decode ( $this->fetch_url (SCROLL_WP_API . 'new') ) ;
 
-		update_post_meta($post->ID, 'scroll_edit_url', $data->link);
-		update_post_meta($post->ID, 'scroll_content_url', $data->content);
+		update_post_meta($post->ID, '_scroll_edit_url', $data->link);
+		update_post_meta($post->ID, '_scroll_content_url', $data->content);
 		$encoded_edit_link = urlencode($data->link);
 
 		$edit = get_edit_post_link( $post->ID , '');
@@ -163,11 +168,17 @@ class Scroll {
 		//if the meta is set, call our template filter
 		if ( get_post_meta( $post_id, 'scroll', true ) ) {
 			remove_filter( 'the_content', 'wpautop' );
+			add_action('wp_head', array( $this, 'include_head' ) );
 			add_filter('single_template', array( $this, 'load_template' ), 100);
 		}
 
 	}
 
+	function include_head() {
+		// global state lolololol
+		global $post;
+		//get_post_meta($post->ID, '
+	}
 	/**
 	 * Callback to replace the current template with our blank template
 	 */

@@ -1,12 +1,25 @@
 TODO
 ====
 
-- prevent double conversion
-- make the convert to scroll button work
-- figure out how to kill the connection after getting pinged and then keep
-  doing work
 - google web fonts
 - javascript
+- prevent double conversion
+- figure out how to kill the connection after getting pinged and then keep
+  doing work
 - security
 - make post uneditable
 - be able 'revert to non-scroll'
+
+
+SECURITY
+========
+
+we are putting unescaped content into their site
+
+the site trusts that what is in those 'custom fields' is trustworthy and not
+some bad javascript or something. if an author can edit those custom fields,
+anyone with author level privilege can open up an xss. this is why wordpress
+strips out javascript from posts, but we need to include js somehow
+
+keep an eye on this:
+http://wordpress.stackexchange.com/q/82070/

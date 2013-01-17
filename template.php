@@ -6,6 +6,11 @@
   /*]]>*/
 </style>
 <div id = "edge_bleed">
-<?php echo get_post_meta($post->ID, 'scroll', true); ?>
-</div>					
+<pre style="border: 1px red dotted;">
+<?php echo get_post_meta($post->ID, '_scroll_js', true); ?>
+
+<?php echo htmlspecialchars(get_post_meta($post->ID, '_scroll_fonts', true)); ?>
+</pre>
+<?php echo get_post_meta($post->ID, '_scroll_content', true); ?>
+</div>
 <?php endwhile; ?>
