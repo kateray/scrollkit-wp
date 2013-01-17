@@ -9,14 +9,14 @@ Author URI: http://scrollkit.com
 License: GPL2
 */
 
-if ( !defined('SCROLLKIT_URL') )
-	define( 'SCROLLKIT_URL', plugin_dir_url( __FILE__ ) );
-if ( !defined('SCROLLKIT_PATH') )
-	define( 'SCROLLKIT_PATH', plugin_dir_path( __FILE__ ) );
-if ( !defined('SCROLLKIT_BASENAME') )
-	define( 'SCROLLKIT_BASENAME', plugin_basename( __FILE__ ) );
+if ( !defined('SCROLL_WP_URL') )
+	define( 'SCROLL_WP_URL', plugin_dir_url( __FILE__ ) );
+if ( !defined('SCROLL_WP_PATH') )
+	define( 'SCROLL_WP_PATH', plugin_dir_path( __FILE__ ) );
+if ( !defined('SCROLL_WP_BASENAME') )
+	define( 'SCROLL_WP_BASENAME', plugin_basename( __FILE__ ) );
 
-define( 'SCROLLKIT_FILE', __FILE__ );
+define( 'SCROLL_WP_FILE', __FILE__ );
 
 class Scroll {
 
@@ -29,6 +29,56 @@ class Scroll {
 		// Scrollify if we want to
 		add_action( 'template_redirect', array( $this, 'scrollify' ) );
 
+		add_filter('query_vars', array( $this, 'query_vars' ) );
+
+		// redirect every single page hit through our plugin...
+		add_action('template_redirect', array( $this, 'template_redirect' ) );
+
+	}
+
+	function query_vars($wp_vars) {
+		$wp_vars[] = 'scrollkit';
+		return $wp_vars;
+	}
+
+	function template_redirect() {
+		$method = get_query_var('scrollkit');
+		if ( empty($method) ) {
+			return;
+		}
+
+		if ( $method == 'update' ) {
+			$post_id = get_query_var('p');
+			$post = get_post($post_id);
+			$content_url = get_post_meta($post_id, 'scroll_content_url', true);
+
+			if ( empty ( $post ) || empty ( $content_url ) ) {
+				return;
+			}
+
+			header ( 'Content-type: text/plain' );
+			$data = json_decode ( $this->fetch_url( $content_url ) ) ;
+
+			update_post_meta($post->ID, 'scroll', $data->content);
+			echo 'ADDED DATA';
+			//echo $data;
+			//add_post_meta($post_id, $meta_key, $meta_value, $unique);
+
+			exit;
+		}
+	}
+
+	// le sigh...
+	function fetch_url ($url) {
+		$curl_session = curl_init();
+		curl_setopt($curl_session, CURLOPT_URL, $url);
+		curl_setopt($curl_session, CURLOPT_BINARYTRANSFER, true);
+		curl_setopt($curl_session, CURLOPT_RETURNTRANSFER, true);
+
+		$data = curl_exec ( $curl_session );
+		curl_close ( $curl_session );
+
+		return $data;
 	}
 
 	/**
@@ -44,15 +94,19 @@ class Scroll {
 	 * Functionality the user to send content to scroll
 	 */
 	function metabox() {
+		global $post;
 		wp_enqueue_script(
 			'scrollkit-wp',
-			SCROLLKIT_URL . 'scrollkit-wp.js',
+			SCROLL_WP_URL . 'scrollkit-wp.js',
 			array('jquery')
 		);
 		?>
 			<button id="scrollkit-wp-convert" type="button">
 				Convert to Scroll
 			</button>
+			<a href="/?scrollkit=update&p=<?php echo $post->ID ?>">
+				Manually pull changes
+			</a>
 		<?php
 	}
 
@@ -83,7 +137,10 @@ class Scroll {
 		return dirname(__FILE__) . '/template.php';
 	}
 
+
 }
 
 global $scroll;
 $scroll = new Scroll();
+
+
