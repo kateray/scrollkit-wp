@@ -18,6 +18,8 @@ if ( !defined('SCROLL_WP_BASENAME') )
 
 define( 'SCROLL_WP_FILE', __FILE__ );
 
+define( 'SCROLL_WP_API', 'http://localhost:3000/api/' );
+
 class Scroll {
 
 	function __construct() {
@@ -47,25 +49,51 @@ class Scroll {
 			return;
 		}
 
-		if ( $method == 'update' ) {
-			$post_id = get_query_var('p');
-			$post = get_post($post_id);
-			$content_url = get_post_meta($post_id, 'scroll_content_url', true);
-
-			if ( empty ( $post ) || empty ( $content_url ) ) {
-				return;
-			}
-
-			header ( 'Content-type: text/plain' );
-			$data = json_decode ( $this->fetch_url( $content_url ) ) ;
-
-			update_post_meta($post->ID, 'scroll', $data->content);
-			echo 'ADDED DATA';
-			//echo $data;
-			//add_post_meta($post_id, $meta_key, $meta_value, $unique);
-
-			exit;
+		// there are prettier ways to do this
+		switch ( $method ){
+			case 'update':
+				$this->update_post();
+				break;
+			case 'convert':
+				$this->convert_post();
+				break;
 		}
+	}
+
+	// lol global state
+	function update_post() {
+		$post_id = get_query_var('p');
+		$post = get_post($post_id);
+		$content_url = get_post_meta($post_id, 'scroll_content_url', true);
+
+		if ( empty ( $post ) || empty ( $content_url ) ) {
+			return;
+		}
+
+		header ( 'Content-type: text/plain' );
+		$data = json_decode ( $this->fetch_url( $content_url ) ) ;
+
+		update_post_meta($post->ID, 'scroll', $data->content);
+
+		$edit = get_edit_post_link( $post->ID , '');
+		header("Location: $edit&message=1", true, 302);
+
+		exit;
+	}
+
+	function convert_post() {
+		$post_id = get_query_var('p');
+		$post = get_post($post_id);
+		$data = json_decode ( $this->fetch_url (SCROLL_WP_API . 'new') ) ;
+
+		update_post_meta($post->ID, 'scroll_edit_url', $data->link);
+		update_post_meta($post->ID, 'scroll_content_url', $data->content);
+		$encoded_edit_link = urlencode($data->link);
+
+		$edit = get_edit_post_link( $post->ID , '');
+		header("Location: $edit&scrollkitpopup=$encoded_edit_link", true, 302);
+
+		exit;
 	}
 
 	// le sigh...
@@ -101,12 +129,22 @@ class Scroll {
 			array('jquery')
 		);
 		?>
-			<button id="scrollkit-wp-convert" type="button">
+			<a href="/?scrollkit=convert&p=<?php echo $post->ID ?>">
 				Convert to Scroll
-			</button>
+			</a>
+			<br>
 			<a href="/?scrollkit=update&p=<?php echo $post->ID ?>">
 				Manually pull changes
 			</a>
+			<?php
+				if (!empty($_GET['scrollkitpopup'])):
+					$url = urldecode($_GET['scrollkitpopup']);
+					// ugh http://stackoverflow.com/questions/2587677/
+			?>
+				<script>
+					window.open("<?php echo $url ?>", 'scroll kit', "height=600,width=1000");
+				</script>
+			<?php endif; ?>
 		<?php
 	}
 

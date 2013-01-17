@@ -1,21 +1,23 @@
 $ = jQuery
-apiEndpoint = 'http://localhost:3000/api'
+# not actually used atm!!
 
-$('#scrollkit-wp-convert').on 'click', (e)->
-  data =
-    title: $('#title').val()
-    content: window.tinymce.activeEditor.getContent()
-    id: $('#post_ID').val()
+#apiEndpoint = 'http://localhost:3000/api'
 
-  $.ajax
-    type: "POST"
-    url: "#{apiEndpoint}/new"
-    data: data
-    error: (jqXHR) ->
-      alert "check your console"
-      console.log jqXHR
+#$('#scrollkit-wp-convert').on 'click', (e)->
+  #data =
+    #title: $('#title').val()
+    #content: window.tinymce.activeEditor.getContent()
+    #id: $('#post_ID').val()
 
-    success: (data) =>
-      alert "B-)"
-      console.log data
+  #$.ajax
+    #type: "POST"
+    #url: "#{apiEndpoint}/new"
+    #data: data
+    #error: (jqXHR) ->
+      #alert "check your console"
+      #console.log jqXHR
+
+    #success: (data) =>
+      #alert "B-)"
+      #console.log data
 

@@ -1,6 +1,12 @@
+TODO
+====
 
+- prevent double conversion
 - make the convert to scroll button work
 - figure out how to kill the connection after getting pinged and then keep
   doing work
 - google web fonts
+- javascript
 - security
+- make post uneditable
+- be able 'revert to non-scroll'
