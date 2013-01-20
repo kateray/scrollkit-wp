@@ -1,6 +1,8 @@
 TODO
 ====
 
+- deal with api keys
+- send title and content on 'convert to scroll' hit
 - google web fonts
 - javascript
 - prevent double conversion
@@ -9,6 +11,8 @@ TODO
 - security
 - make post uneditable
 - be able 'revert to non-scroll'
+- handle api key denials and that stuff
+- handle old versions of WP
 
 
 SECURITY

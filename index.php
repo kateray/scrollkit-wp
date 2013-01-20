@@ -193,3 +193,90 @@ global $scroll;
 $scroll = new Scroll();
 
 
+// Below is the code to uh, store a single <input>'s val in the db...
+
+// Add menu page
+function scroll_wp_add_options_page() {
+	add_options_page('Scroll Kit WP', 'Scroll Kit WP', 'manage_options', __FILE__, 'scroll_wp_render_form');
+}
+add_action('admin_menu', 'scroll_wp_add_options_page');
+
+function scroll_wp_render_form() {
+	?>
+	<div class="wrap">
+
+		<div class="icon32" id="icon-options-general"><br></div>
+		<h2>Scroll Kit WP</h2>
+		<!--<p>You could have some words here if you are a fancy plugin</p>-->
+
+		<form method="post" action="options.php">
+			<?php settings_fields('scroll_wp_plugin_options'); ?>
+			<?php $options = get_option('scroll_wp_options'); ?>
+
+			<table class="form-table">
+				<tr>
+					<th scope="row">Scroll Kit API Key</th>
+					<td>
+						<input type="text" size="57" name="scroll_wp_options[scrollkit_api_key]" value="<?php echo $options['scrollkit_api_key']; ?>" />
+					</td>
+				</tr>
+			</table>
+			<p class="submit">
+				<input type="submit" class="button-primary" value="<?php _e('Save Changes') ?>" />
+			</p>
+		</form>
+	</div>
+
+<?php
+}
+
+// Sanitize and validate input. Accepts an array, return a sanitized array.
+function scroll_wp_validate_options($input) {
+	//TODO regex for our api key
+	$input['scrollkit_api_key'] = wp_filter_nohtml_kses($input['scrollkit_api_key']);
+	return $input;
+}
+
+// Init plugin options to white list our options
+function scroll_wp_init(){
+	register_setting( 'scroll_wp_plugin_options',
+			'scroll_wp_options',
+			'scroll_wp_validate_options' );
+}
+add_action('admin_init', 'scroll_wp_init' );
+
+// Display a Settings link on the main Plugins page
+function scroll_wp_action_links( $links, $file ) {
+
+	if ( $file == plugin_basename( __FILE__ ) ) {
+		$posk_links = '<a href="'.get_admin_url().'options-general.php?'
+				. 'page=scroll-wp/index.php">'
+				. __('Settings')
+				. '</a>';
+		// make the 'Settings' link appear first
+		array_unshift( $links, $posk_links );
+	}
+
+	return $links;
+}
+add_filter( 'plugin_action_links', 'scroll_wp_action_links', 10, 2 );
+
+// Delete options table entries ONLY when plugin deactivated AND deleted
+function scroll_wp_delete_plugin_options() {
+	delete_option('scroll_wp_options');
+}
+register_uninstall_hook(__FILE__, 'scroll_wp_delete_plugin_options');
+
+// sets some default values on first activation
+function scroll_wp_add_defaults () {
+	$tmp = get_option('scroll_wp_options');
+	if(!is_array($tmp)) {
+		$arr = array(
+			"scrollkit_api_key" => ""
+		);
+		update_option('scroll_wp_options', $arr);
+	}
+}
+
+register_activation_hook(__FILE__, 'scroll_wp_add_defaults');
+//register_deactivation_hook(__FILE__, 'scroll_wp_delete_plugin_options');
