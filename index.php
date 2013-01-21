@@ -64,12 +64,26 @@ class Scroll {
 	// lol global state
 	function update_post() {
 		$post_id = get_query_var('p');
+		$api_key = isset($_GET['key']) ? $_GET['key'] : null;
+		// 401 if the api key doesn't match
+
+		$options = get_option('scroll_wp_options');
+
+		if (empty($options['scrollkit_api_key']) || $api_key !== $options['scrollkit_api_key']) {
+			header('HTTP/1.0 401 Unauthorized');
+			echo 'invalid api key ';
+			exit;
+		}
+
 		$post = get_post($post_id);
-		$content_url = get_post_meta($post_id, '_scroll_content_url', true);
+
+		$scroll_id = get_post_meta($post_id, '_scroll_id', true);
+		$content_url = $this->build_content_url($scroll_id);
 
 		if ( empty ( $post ) || empty ( $content_url ) ) {
 			// i think this is broken
-			return;
+			//return;
+			die('there is a problem');
 		}
 
 		$data = json_decode ( $this->fetch_url( $content_url ) ) ;
@@ -77,9 +91,7 @@ class Scroll {
 		update_post_meta($post->ID, '_scroll_content', $data->content);
 		update_post_meta($post->ID, '_scroll_css', $data->css);
 		update_post_meta($post->ID, '_scroll_fonts', $data->fonts);
-
-		$script_string = implode($data->js, ',');
-		update_post_meta($post->ID, '_scroll_js', $script_string);
+		update_post_meta($post->ID, '_scroll_js',  $data->js);
 
 		$edit = get_edit_post_link( $post->ID , '');
 		header("Location: $edit&message=1", true, 302);
@@ -87,11 +99,11 @@ class Scroll {
 		exit;
 	}
 
-	function create_edit_url($scrollkit_id) {
+	function build_edit_url($scrollkit_id) {
 		return SCROLL_WP_SK_URL . "s/$scrollkit_id/edit";
 	}
 
-	function create_content_url($scrollkit_id) {
+	function build_content_url($scrollkit_id) {
 		return SCROLL_WP_SK_URL . "s/$scrollkit_id/content";
 	}
 
@@ -106,13 +118,15 @@ class Scroll {
 		$data['title'] = $post->post_title;
 		$data['content'] = $post->post_content;
 		$data['cms_id'] = $post_id;
+		// XXX probably not smart to include paramaterized callback url
+		$data['cms_url'] = get_bloginfo('url') . '?scrollkit=update&p=' . $post_id;
 		$data['api_key'] = $api_key;
 
 		$response = $this->post_json_to_url(SCROLL_WP_API . 'new', $data);
 
 		update_post_meta($post->ID, '_scroll_id', $response['sk_id']);
 
-		$encoded_edit_link = urlencode($this->create_edit_url($response['sk_id']));
+		$encoded_edit_link = urlencode($this->build_edit_url($response['sk_id']));
 
 		$edit = get_edit_post_link($post->ID , '');
 
@@ -176,6 +190,7 @@ class Scroll {
 	 * Functionality the user to send content to scroll
 	 */
 	function metabox() {
+		$options = get_option('scroll_wp_options');
 		global $post;
 		wp_enqueue_script(
 			'scrollkit-wp',
@@ -187,7 +202,7 @@ class Scroll {
 				Convert to Scroll
 			</a>
 			<br>
-			<a href="/?scrollkit=update&p=<?php echo $post->ID ?>">
+			<a href="/?scrollkit=update&p=<?php echo $post->ID ?>&key=<?php echo $options['scrollkit_api_key'] ?>">
 				Manually pull changes
 			</a>
 			<?php
@@ -234,8 +249,6 @@ class Scroll {
 	function load_template() {
 		return dirname(__FILE__) . '/template.php';
 	}
-
-
 }
 
 global $scroll;
@@ -328,6 +341,4 @@ function scroll_wp_add_defaults () {
 		update_option('scroll_wp_options', $arr);
 	}
 }
-
 register_activation_hook(__FILE__, 'scroll_wp_add_defaults');
-//register_deactivation_hook(__FILE__, 'scroll_wp_delete_plugin_options');

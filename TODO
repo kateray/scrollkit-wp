@@ -1,10 +1,8 @@
 TODO
 ====
 
-- deal with api keys
-- send title and content on 'convert to scroll' hit
-- google web fonts
-- javascript
+- css and javascript
+- google web fonts and fonts 
 - prevent double conversion
 - figure out how to kill the connection after getting pinged and then keep
   doing work
