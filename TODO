@@ -1,16 +1,21 @@
 TODO
 ====
 
-- css and javascript
-- google web fonts and fonts 
-- prevent double conversion
+- send paragraphs and line breaks to SK
+- google web fonts
+- figure out how to drag all of the header stuff out of SK for
+  analytics etc but without the stylesheets 
+  (and what to do with JS that is for their site?)
+  meta description etc relevant too
+- fonts that are on SK's server but not ours? (might work since the stylesheet is ours)
+- prevent double convert-to-scrollkit
 - figure out how to kill the connection after getting pinged and then keep
   doing work
 - security
 - make post uneditable
 - be able 'revert to non-scroll'
-- handle api key denials and that stuff
-- handle old versions of WP
+- handle api key (SK side needs to response appropriately too) denials and that stuff
+- deal w/ old versions of WP
 
 
 SECURITY
