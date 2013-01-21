@@ -18,7 +18,8 @@ if ( !defined('SCROLL_WP_BASENAME') )
 
 define( 'SCROLL_WP_FILE', __FILE__ );
 
-define( 'SCROLL_WP_API', 'http://localhost:3000/api/' );
+define( 'SCROLL_WP_SK_URL', 'http://localhost:3000/' );
+define( 'SCROLL_WP_API', SCROLL_WP_SK_URL . 'api/' );
 
 class Scroll {
 
@@ -86,16 +87,35 @@ class Scroll {
 		exit;
 	}
 
+	function create_edit_url($scrollkit_id) {
+		return SCROLL_WP_SK_URL . "s/$scrollkit_id/edit";
+	}
+
+	function create_content_url($scrollkit_id) {
+		return SCROLL_WP_SK_URL . "s/$scrollkit_id/content";
+	}
+
 	function convert_post() {
 		$post_id = get_query_var('p');
 		$post = get_post($post_id);
-		$data = json_decode ( $this->fetch_url (SCROLL_WP_API . 'new') ) ;
 
-		update_post_meta($post->ID, '_scroll_edit_url', $data->link);
-		update_post_meta($post->ID, '_scroll_content_url', $data->content);
-		$encoded_edit_link = urlencode($data->link);
+		$options = get_option('scroll_wp_options');
+		$api_key = $options['scrollkit_api_key'];
 
-		$edit = get_edit_post_link( $post->ID , '');
+		$data = array();
+		$data['title'] = $post->post_title;
+		$data['content'] = $post->post_content;
+		$data['cms_id'] = $post_id;
+		$data['api_key'] = $api_key;
+
+		$response = $this->post_json_to_url(SCROLL_WP_API . 'new', $data);
+
+		update_post_meta($post->ID, '_scroll_id', $response['sk_id']);
+
+		$encoded_edit_link = urlencode($this->create_edit_url($response['sk_id']));
+
+		$edit = get_edit_post_link($post->ID , '');
+
 		header("Location: $edit&scrollkitpopup=$encoded_edit_link", true, 302);
 
 		exit;
@@ -112,6 +132,35 @@ class Scroll {
 		curl_close ( $curl_session );
 
 		return $data;
+	}
+
+	// le double sigh...
+	// sends json to a url, return whatever json it gives back in a php array
+	function post_json_to_url ($url, $data) {
+
+		$content = json_encode($data);
+
+		$curl = curl_init($url);
+		curl_setopt($curl, CURLOPT_HEADER, false);
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($curl, CURLOPT_HTTPHEADER,
+		array("Content-type: application/json"));
+		curl_setopt($curl, CURLOPT_POST, true);
+		curl_setopt($curl, CURLOPT_POSTFIELDS, $content);
+
+		$json_response = curl_exec($curl);
+
+		$status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+		// TODO handle errors
+		if ( $status != 200 ) {
+			die("eeek! response: $status");
+		}
+
+		curl_close($curl);
+
+		$response = json_decode($json_response, true);
+		return $response;
 	}
 
 	/**
@@ -218,6 +267,8 @@ function scroll_wp_render_form() {
 					<th scope="row">Scroll Kit API Key</th>
 					<td>
 						<input type="text" size="57" name="scroll_wp_options[scrollkit_api_key]" value="<?php echo $options['scrollkit_api_key']; ?>" />
+						<br>
+					 (TODO add link to get api key)
 					</td>
 				</tr>
 			</table>
