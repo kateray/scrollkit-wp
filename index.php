@@ -230,7 +230,7 @@ class Scroll {
 		$post_id = get_queried_object_id();
 
 		//if the meta is set, call our template filter
-		if ( get_post_meta( $post_id, 'scroll', true ) ) {
+		if ( get_post_meta( $post_id, '_scroll_content', true ) ) {
 			remove_filter( 'the_content', 'wpautop' );
 			add_action('wp_head', array( $this, 'include_head' ) );
 			add_filter('single_template', array( $this, 'load_template' ), 100);
