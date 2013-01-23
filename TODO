@@ -1,10 +1,6 @@
 TODO
 ====
 
-- figure out how to drag all of the header stuff out of SK for
-  analytics etc but without the stylesheets 
-  (and what to do with JS that is for their site?)
-  meta description etc relevant too
 - prevent double convert-to-scrollkit
 - security
 - be able 'revert to non-scroll'
