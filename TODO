@@ -5,6 +5,7 @@ TODO
 - security
 - be able 'revert to non-scroll'
 - handle api key (SK side needs to response appropriately too) denials and that stuff
+- when sk updates wp post, we'll have to make sure wp updates cache
 
 - google web fonts
 - fonts that are on SK's server but not ours? (might work since the stylesheet is ours)
