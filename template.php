@@ -1,41 +1,41 @@
-<!DOCTYPE html>
-<html <?php language_attributes(); ?>>
-<head>
-<meta charset="<?php bloginfo( 'charset' ); ?>" />
-<meta name="viewport" content="width=device-width" />
-<title><?php wp_title( '|', true, 'right' ); ?></title>
-<?php // wp_head(); ?>
 <?php
-	// TODO
-	// consider using a wordpress-y way to do this with hooks
+
+	/**
+	 * Ghetto template rendering
+	 */
+	function render_template($data, $template){
+		$rendered = $template;
+		foreach ($data as $key => $val){
+			$pattern = "/{{" . $key . "}}/";
+			$rendered = preg_replace($pattern, $val, $rendered);
+		}
+		return $rendered;
+	}
+
+	$stylesheet_html = '';
 	$stylesheets = get_post_meta($post->ID, '_scroll_css', true);
-	foreach($stylesheets as $stylesheet):
-?>
-	<link href="<?php echo $stylesheet ?>" media="screen" rel="stylesheet" type="text/css" />
-<?php endforeach ?>
+	foreach($stylesheets as $stylesheet){
+		$stylesheet_html .= "<link href=\"$stylesheet\" media=\"screen\" rel=\"stylesheet\" type=\"text/css\" />\n";
+	}
 
-</head>
-
-<body <?php body_class(); ?>>
-
-<?php if ( have_posts() ) while ( have_posts() ) : the_post(); ?>
-
-<style>
-  /*<![CDATA[*/
-    #edge_bleed {margin:-8px;position:0px;padding:0px;}
-  /*]]>*/
-</style>
-<div id="edge_bleed">
-
-<?php echo get_post_meta($post->ID, '_scroll_content', true); ?>
-</div>
-<?php endwhile; ?>
-
-<?php
+	$script_html = '';
 	$scripts = get_post_meta($post->ID, '_scroll_js', true);
-	foreach($scripts as $script):
-?>
-	<script src="<?php echo $script ?>" type="text/javascript"></script>
-<?php endforeach ?>
+	foreach($scripts as $script) {
+		$script_html .= "<script src=\"$script\" type=\"text/javascript\"></script>\n";
+	}
 
-</body>
+	$options = get_option('scroll_wp_options');
+
+	global $post;
+	$data = array(
+		'stylesheets' => $stylesheet_html,
+		'scripts' => $script_html,
+		// why wordpress doesn't escape the title is beyond me
+		'title' => wp_filter_nohtml_kses(get_the_title($post->ID)),
+	);
+
+	$header = render_template($data, $options['template_header']);
+	$content = get_post_meta($post->ID, '_scroll_content', true);
+	$footer = render_template($data, $options['template_footer']);
+
+	echo $header . $content . $footer;

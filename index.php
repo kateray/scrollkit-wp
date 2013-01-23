@@ -53,7 +53,7 @@ class Scroll {
 		// there are prettier ways to do this
 		switch ( $method ){
 			case 'update':
-				$this->update_post();
+				$this->update_sk_post();
 				break;
 			case 'convert':
 				$this->convert_post();
@@ -62,7 +62,7 @@ class Scroll {
 	}
 
 	// lol global state
-	function update_post() {
+	function update_sk_post() {
 		$post_id = get_query_var('p');
 		$api_key = isset($_GET['key']) ? $_GET['key'] : null;
 		// 401 if the api key doesn't match
@@ -71,7 +71,7 @@ class Scroll {
 
 		if (empty($options['scrollkit_api_key']) || $api_key !== $options['scrollkit_api_key']) {
 			header('HTTP/1.0 401 Unauthorized');
-			echo 'invalid api key ';
+			echo 'invalid api key';
 			exit;
 		}
 
@@ -81,12 +81,11 @@ class Scroll {
 		$content_url = $this->build_content_url($scroll_id);
 
 		if ( empty ( $post ) || empty ( $content_url ) ) {
-			// i think this is broken
-			//return;
+			// TODO make this less shitty
 			die('there is a problem');
 		}
 
-		$data = json_decode ( $this->fetch_url( $content_url ) ) ;
+		$data = json_decode ( $this->fetch_data_from_url( $content_url ) ) ;
 
 		update_post_meta($post->ID, '_scroll_content', $data->content);
 		update_post_meta($post->ID, '_scroll_css', $data->css);
@@ -115,14 +114,14 @@ class Scroll {
 		$api_key = $options['scrollkit_api_key'];
 
 		$data = array();
-		$data['title'] = $post->post_title;
+		$data['title'] = get_the_title($post_id);
 		$data['content'] = $post->post_content;
 		$data['cms_id'] = $post_id;
 		// XXX probably not smart to include paramaterized callback url
-		$data['cms_url'] = get_bloginfo('url') . '?scrollkit=update&p=' . $post_id;
+		$data['cms_url'] = get_bloginfo('url') . '?scrollkit=update';
 		$data['api_key'] = $api_key;
 
-		$response = $this->post_json_to_url(SCROLL_WP_API . 'new', $data);
+		$response = $this->post_array_as_json_to_url(SCROLL_WP_API . 'new', $data);
 
 		update_post_meta($post->ID, '_scroll_id', $response['sk_id']);
 
@@ -135,8 +134,10 @@ class Scroll {
 		exit;
 	}
 
-	// le sigh...
-	function fetch_url ($url) {
+	/*
+	 * Returns the data of a get request on a URL
+	 */
+	function fetch_data_from_url ($url) {
 		$curl_session = curl_init();
 		curl_setopt($curl_session, CURLOPT_URL, $url);
 		curl_setopt($curl_session, CURLOPT_BINARYTRANSFER, true);
@@ -148,9 +149,11 @@ class Scroll {
 		return $data;
 	}
 
-	// le double sigh...
-	// sends json to a url, return whatever json it gives back in a php array
-	function post_json_to_url ($url, $data) {
+	/*
+	 * Posts your array to a url as JSON and returns a php array
+	 * TODO throw exception if the server response isn't a 2XX
+	 */
+	function post_array_as_json_to_url ($url, $data) {
 
 		$content = json_encode($data);
 
@@ -182,7 +185,8 @@ class Scroll {
 	 */
 	function action_add_metaboxes() {
 
-		add_meta_box( 'scroll', __( 'Scroll', 'scroll' ), array( $this, 'metabox' ), 'post', 'side' );
+		add_meta_box( 'scroll', __( 'Scroll', 'scroll' ), array( $this, 'metabox' ),
+				'post', 'side' );
 
 	}
 
@@ -247,6 +251,9 @@ class Scroll {
 	 * Callback to replace the current template with our blank template
 	 */
 	function load_template() {
+
+		//$wp_styles = new WP_Styles();
+		//print_r( $wp_styles->queue);
 		return dirname(__FILE__) . '/template.php';
 	}
 }
@@ -282,6 +289,22 @@ function scroll_wp_render_form() {
 						<input type="text" size="57" name="scroll_wp_options[scrollkit_api_key]" value="<?php echo $options['scrollkit_api_key']; ?>" />
 						<br>
 					 (TODO add link to get api key)
+					</td>
+				</tr>
+				<tr>
+					<td>
+						HTML Header
+					</td>
+					<td>
+						<textarea rows="10" cols="100" name="scroll_wp_options[template_header]"><?php echo htmlentities($options['template_header'], ENT_QUOTES, "UTF-8") ?></textarea>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						HTML Footer
+					</td>
+					<td>
+						<textarea rows="10" cols="100" name="scroll_wp_options[template_footer]"><?php echo htmlentities($options['template_footer'], ENT_QUOTES, "UTF-8") ?></textarea>
 					</td>
 				</tr>
 			</table>
@@ -335,8 +358,32 @@ register_uninstall_hook(__FILE__, 'scroll_wp_delete_plugin_options');
 function scroll_wp_add_defaults () {
 	$tmp = get_option('scroll_wp_options');
 	if(!is_array($tmp)) {
+
+		$blog_title = get_bloginfo('name');
+
+		$template_header_default = <<<EOT
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>{{title}} | $blog_title</title>
+		<meta name="viewport" content="width=980">
+		{{stylesheets}}
+	</head>
+	<body class="published">
+		<div id="skrollr-body">
+EOT;
+
+		$template_footer_default = <<<EOT
+			{{scripts}}
+		</div>
+	</body>
+</html>
+EOT;
+
 		$arr = array(
-			"scrollkit_api_key" => ""
+			"scrollkit_api_key" => "",
+			"template_header" => $template_header_default,
+			"template_footer" => $template_footer_default,
 		);
 		update_option('scroll_wp_options', $arr);
 	}

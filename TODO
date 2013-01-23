@@ -18,6 +18,7 @@ TODO
   doing work
 - make clear to users that when they edit wp post, they aren't updating the scroll
 - deal w/ old versions of WP
+- work with user's caches (i.e. trigger a post 'update' or something)
 
 
 SECURITY
