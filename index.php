@@ -189,11 +189,17 @@ class Scroll {
 
 	}
 
+	function build_scrollkit_edit_url($id){
+		return SCROLL_WP_SK_URL . "s/$id/edit";
+	}
+
 	/**
 	 * Functionality the user to send content to scroll
 	 */
 	function metabox() {
+		global $post;
 		$options = get_option('scroll_wp_options');
+		$scrollkit_id = get_post_meta($post->ID, '_scroll_id', true);
 		global $post;
 		wp_enqueue_script(
 			'scrollkit-wp',
@@ -201,9 +207,15 @@ class Scroll {
 			array('jquery')
 		);
 		?>
-			<a href="/?scrollkit=convert&p=<?php echo $post->ID ?>">
-				Convert to Scroll
-			</a>
+			<?php if (!empty($scrollkit_id)): ?>
+				<a href="<?php echo $this->build_scrollkit_edit_url($scrollkit_id) ?>" target="_blank">
+					Edit this Scroll
+				</a>
+			<?php else: ?>
+				<a href="/?scrollkit=convert&p=<?php echo $post->ID ?>">
+					Convert to Scroll
+				</a>
+			<?php endif; ?>
 			<br>
 			<a href="/?scrollkit=update&p=<?php echo $post->ID ?>&key=<?php echo $options['scrollkit_api_key'] ?>">
 				Manually pull changes
