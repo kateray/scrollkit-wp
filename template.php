@@ -36,8 +36,15 @@
 		'title' => wp_filter_nohtml_kses(get_the_title($post->ID)),
 	);
 
+	$debug = '';
+	if (WP_DEBUG === true){
+		$debug .= "\n<!--\n";
+		$debug .= 'scroll id: ' . get_post_meta($post->ID, '_scroll_id', true);
+		$debug .= "\n-->\n";
+	}
+
 	$header = render_template($data, $options['template_header']);
 	$content = get_post_meta($post->ID, '_scroll_content', true);
 	$footer = render_template($data, $options['template_footer']);
 
-	echo $header . $content . $footer;
+	echo $header . $debug . $content . $footer;

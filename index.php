@@ -30,34 +30,103 @@ class Scroll {
     // add_action( 'wp_ajax_scroll_send', array( $this, 'handle_ajax_scroll_send' ) );
 
 		// Scrollify if we want to
-		add_action( 'template_redirect', array( $this, 'scrollify' ) );
+		add_action('template_redirect', array( $this, 'evaluate_query_parameters' ) );
 
 		add_filter('query_vars', array( $this, 'query_vars' ) );
 
-		// redirect every single page hit through our plugin...
-		add_action('template_redirect', array( $this, 'template_redirect' ) );
 
 	}
+
+	/**
+	 * Functionality the user to send content to scroll
+	 */
+	function metabox() {
+		global $post;
+		$options = get_option('scroll_wp_options');
+		$scrollkit_id = get_post_meta($post->ID, '_scroll_id', true);
+		global $post;
+		wp_enqueue_script(
+			'scrollkit-wp',
+			SCROLL_WP_URL . 'scrollkit-wp.js',
+			array('jquery')
+		);
+
+		// needed
+		// ======
+		// activate link
+		// deactive link
+		// delete link
+
+		?>
+
+			<?php echo get_post_meta( $post->ID, '_scroll_state', true ); ?>
+			<?php if (!empty($scrollkit_id)): ?>
+				<a href="<?php echo $this->build_scrollkit_edit_url($scrollkit_id) ?>"
+						target="_blank">
+					Edit this Scroll
+				</a>
+			<?php endif; ?>
+
+			<br>
+			<a href="/?scrollkit=activate&p=<?php echo $post->ID ?>">
+				Convert to Scroll or Activate Scroll
+			</a>
+
+			<br>
+			<a href="/?scrollkit=deactivate&p=<?php echo $post->ID ?>"
+					title="Turn this back into a normal wordpress post">
+				Dectivate Scroll
+			</a>
+
+			<br>
+			<a href="/?scrollkit=delete&p=<?php echo $post->ID ?>"
+					onclick="return confirm('This will permanently delete the scroll associated with this post, are you sure you want to delete it?');"
+					title="Permanently deletes the scroll associated with this post">
+				Delete Scroll
+			</a>
+
+			<?php
+				// XXX popup blockers prevent this from opening
+				// launch the editor popup
+				if (!empty($_GET['scrollkitpopup'])):
+					$url = urldecode($_GET['scrollkitpopup']);
+					// ugh http://stackoverflow.com/questions/2587677/
+			?>
+				<script>
+					window.open("<?php echo $url ?>", 'scroll kit', "height=600,width=1000");
+				</script>
+			<?php endif; ?>
+		<?php
+	}
+
 
 	function query_vars($wp_vars) {
 		$wp_vars[] = 'scrollkit';
 		return $wp_vars;
 	}
 
-	function template_redirect() {
+	function evaluate_query_parameters() {
 		$method = get_query_var('scrollkit');
 		if ( empty($method) ) {
+			$this->scrollify();
 			return;
 		}
 
 		// there are prettier ways to do this
+		global $post;
 		switch ( $method ){
 			case 'update':
-				$this->update_sk_post();
-				break;
-			case 'convert':
-				$this->convert_post();
-				break;
+				$this->update_sk_post($post->ID);
+				exit;
+			case 'activate':
+				$this->activate_post($post->ID);
+				exit;
+			case 'deactivate':
+				$this->deactivate_post($post->ID);
+				exit;
+			case 'delete':
+				$this->delete_post($post->ID);
+				exit;
 		}
 	}
 
@@ -105,33 +174,6 @@ class Scroll {
 		return SCROLL_WP_SK_URL . "s/$scrollkit_id/content";
 	}
 
-	function convert_post() {
-		$post_id = get_query_var('p');
-		$post = get_post($post_id);
-
-		$options = get_option('scroll_wp_options');
-		$api_key = $options['scrollkit_api_key'];
-
-		$data = array();
-		$data['title'] = get_the_title($post_id);
-		$data['content'] = $post->post_content;
-		$data['cms_id'] = $post_id;
-		// XXX probably not smart to include paramaterized callback url
-		$data['cms_url'] = get_bloginfo('url') . '?scrollkit=update';
-		$data['api_key'] = $api_key;
-
-		$response = $this->post_array_as_json_to_url(SCROLL_WP_API . 'new', $data);
-
-		update_post_meta($post->ID, '_scroll_id', $response['sk_id']);
-
-		$encoded_edit_link = urlencode($this->build_edit_url($response['sk_id']));
-
-		$edit = get_edit_post_link($post->ID , '');
-
-		header("Location: $edit&scrollkitpopup=$encoded_edit_link", true, 302);
-
-		exit;
-	}
 
 	/*
 	 * Returns the data of a get request on a URL
@@ -191,54 +233,82 @@ class Scroll {
 		return SCROLL_WP_SK_URL . "s/$id/edit";
 	}
 
-	/**
-	 * Functionality the user to send content to scroll
-	 */
-	function metabox() {
-		global $post;
-		$options = get_option('scroll_wp_options');
-		$scrollkit_id = get_post_meta($post->ID, '_scroll_id', true);
-		global $post;
-		wp_enqueue_script(
-			'scrollkit-wp',
-			SCROLL_WP_URL . 'scrollkit-wp.js',
-			array('jquery')
-		);
-		?>
+	function activate_post($post_ID){
+		$state = get_post_meta( $post_ID, '_scroll_state', true );
+		if (empty($state)){
+			$state = 'none';
+		}
+		// if a post is activated, return
+		switch($state){
+			case 'active':
+				return;
+			case 'inactive':
+				update_post_meta($post_ID, '_scroll_state', 'active');
+				return;
+			case 'none':
+				$this->convert_post();
+				return;
+		}
+	}
 
-			<?php if (!empty($scrollkit_id)): ?>
-				<a href="<?php echo $this->build_scrollkit_edit_url($scrollkit_id) ?>" target="_blank">
-					Edit this Scroll
-				</a>
-				<!--
-					make a confirmation dialog explaining how the scrollkit content
-					isn't moved back into WP
-				-->
-				<br>
-				<a href="javascript:;" onclick="alert('todo')">
-					Make this a normal WP post
-				</a>
-			<?php else: ?>
-				<a href="/?scrollkit=convert&p=<?php echo $post->ID ?>">
-					Convert to Scroll
-				</a>
-			<?php endif; ?>
-			<br>
-			<a href="/?scrollkit=update&p=<?php echo $post->ID ?>&key=<?php echo $options['scrollkit_api_key'] ?>">
-				Manually pull changes
-			</a>
-			<?php
-				// XXX popup blockers prevent this from opening
-				// launch the editor popup
-				if (!empty($_GET['scrollkitpopup'])):
-					$url = urldecode($_GET['scrollkitpopup']);
-					// ugh http://stackoverflow.com/questions/2587677/
-			?>
-				<script>
-					window.open("<?php echo $url ?>", 'scroll kit', "height=600,width=1000");
-				</script>
-			<?php endif; ?>
-		<?php
+	function deactivate_post($post_ID){
+		$state = get_post_meta( $post_ID, '_scroll_state', true );
+		if (empty($state) || $state == 'inactive'){
+			return;
+		}
+		update_post_meta($post_ID, '_scroll_state', 'inactive');
+	}
+
+	/**
+	 * Removes all scrollkit data associated with a post
+	 */
+	function delete_post($post_ID){
+		delete_post_meta($post_ID, '_scroll_id');
+
+		// set some defaults
+		delete_post_meta($post_ID, '_scroll_state');
+		delete_post_meta($post_ID, '_scroll_content');
+		delete_post_meta($post_ID, '_scroll_css');
+		delete_post_meta($post_ID, '_scroll_fonts');
+		delete_post_meta($post_ID, '_scroll_js');
+	}
+
+	/**
+	 * Converts a wordpress post into a wordpress scroll post
+	 */
+	function convert_post() {
+		$post_id = get_query_var('p');
+		$post = get_post($post_id);
+
+		$options = get_option('scroll_wp_options');
+		$api_key = $options['scrollkit_api_key'];
+
+		$data = array();
+		$data['title'] = get_the_title($post_id);
+		$data['content'] = $post->post_content;
+		$data['cms_id'] = $post_id;
+		// XXX probably not smart to include paramaterized callback url
+		$data['cms_url'] = get_bloginfo('url') . '?scrollkit=update';
+		$data['api_key'] = $api_key;
+
+		$response = $this->post_array_as_json_to_url(SCROLL_WP_API . 'new', $data);
+
+		update_post_meta($post->ID, '_scroll_id', $response['sk_id']);
+
+		// set some defaults
+		update_post_meta($post->ID, '_scroll_state', 'active');
+		update_post_meta($post->ID, '_scroll_content', '');
+		update_post_meta($post->ID, '_scroll_css', array());
+		update_post_meta($post->ID, '_scroll_fonts', '');
+		update_post_meta($post->ID, '_scroll_js', array());
+
+		$encoded_edit_link = urlencode($this->build_edit_url($response['sk_id']));
+
+		$edit = get_edit_post_link($post->ID , '');
+
+		header("Location: $edit&scrollkitpopup=$encoded_edit_link", true, 302);
+
+		exit;
 	}
 
 	/**
@@ -254,7 +324,7 @@ class Scroll {
 		$post_id = get_queried_object_id();
 
 		//if the meta is set, call our template filter
-		if ( get_post_meta( $post_id, '_scroll_content', true ) ) {
+		if ( get_post_meta( $post_id, '_scroll_state', true ) === 'active' ) {
 			remove_filter( 'the_content', 'wpautop' );
 			add_action('wp_head', array( $this, 'include_head' ) );
 			add_filter('single_template', array( $this, 'load_template' ), 100);
@@ -348,12 +418,12 @@ add_action('admin_init', 'scroll_wp_init' );
 function scroll_wp_action_links( $links, $file ) {
 
 	if ( $file == plugin_basename( __FILE__ ) ) {
-		$posk_links = '<a href="'.get_admin_url().'options-general.php?'
+		$links = '<a href="'.get_admin_url().'options-general.php?'
 				. 'page=scroll-wp/index.php">'
 				. __('Settings')
 				. '</a>';
 		// make the 'Settings' link appear first
-		array_unshift( $links, $posk_links );
+		array_unshift( $links, $links );
 	}
 
 	return $links;
