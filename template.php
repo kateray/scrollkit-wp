@@ -18,6 +18,8 @@
 		$stylesheet_html .= "<link href=\"$stylesheet\" media=\"screen\" rel=\"stylesheet\" type=\"text/css\" />\n";
 	}
 
+	$stylesheet_html .= get_post_meta($post->ID, '_scroll_fonts', true);
+
 	$script_html = '';
 	$scripts = get_post_meta($post->ID, '_scroll_js', true);
 	foreach($scripts as $script) {
