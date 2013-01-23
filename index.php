@@ -93,8 +93,7 @@ class Scroll {
 		update_post_meta($post->ID, '_scroll_js',  $data->js);
 
 		$edit = get_edit_post_link( $post->ID , '');
-		header("Location: $edit&message=1", true, 302);
-
+		header( 'Content-Type:' );
 		exit;
 	}
 

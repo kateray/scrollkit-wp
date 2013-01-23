@@ -1,17 +1,11 @@
 TODO
 ====
 
-- figure out how to drag all of the header stuff out of SK for
-  analytics etc but without the stylesheets 
-  (and what to do with JS that is for their site?)
-  meta description etc relevant too
 - prevent double convert-to-scrollkit
 - security
-
-
-- handle api key (SK side needs to response appropriately too) denials and that stuff
 - be able 'revert to non-scroll'
-- send paragraphs and line breaks to SK
+- handle api key (SK side needs to response appropriately too) denials and that stuff
+
 - google web fonts
 - fonts that are on SK's server but not ours? (might work since the stylesheet is ours)
 - figure out how to kill the connection after getting pinged and then keep
@@ -24,12 +18,3 @@ TODO
 SECURITY
 ========
 
-we are putting unescaped content into their site
-
-the site trusts that what is in those 'custom fields' is trustworthy and not
-some bad javascript or something. if an author can edit those custom fields,
-anyone with author level privilege can open up an xss. this is why wordpress
-strips out javascript from posts, but we need to include js somehow
-
-keep an eye on this:
-http://wordpress.stackexchange.com/q/82070/
