@@ -1,20 +1,27 @@
 TODO
 ====
 
+- redirect properly after deleting
+- preview mode vs published
 - prevent double convert-to-scrollkit
-- security
-- be able 'revert to non-scroll'
-- handle api key (SK side needs to response appropriately too) denials and that stuff
-- when sk updates wp post, we'll have to make sure wp updates cache
-
-- google web fonts
-- fonts that are on SK's server but not ours? (might work since the stylesheet is ours)
+- HANDLE API KEY ERRORS
+  - when user hit's done on SK side
+  - when user hits convert to scroll on WP side
 - figure out how to kill the connection after getting pinged and then keep
   doing work
 - make clear to users that when they edit wp post, they aren't updating the scroll
 - deal w/ old versions of WP
+- work with user's caches (i.e. trigger a post 'update' or something)
+- only let admins edit the header and footer bits (security)
+- make unpublished and previewable SK posts work normally
+- security
 
+DESIGNY
+=======
+(on sk)
+- make it more clear how to generate an api key or get to that url
+- make api key page nicer
+- remind users what variables need to be in the header and footer
 
 SECURITY
 ========
-
