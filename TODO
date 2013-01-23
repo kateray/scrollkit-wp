@@ -1,10 +1,13 @@
 TODO
 ====
 
+
 - prevent double convert-to-scrollkit
 - security
 - be able 'revert to non-scroll'
-- handle api key (SK side needs to response appropriately too) denials and that stuff
+- HANDLE API KEY ERRORS
+  - when user hit's done on SK side
+  - when user hits convert to scroll on WP side
 
 - google web fonts
 - fonts that are on SK's server but not ours? (might work since the stylesheet is ours)
@@ -13,6 +16,13 @@ TODO
 - make clear to users that when they edit wp post, they aren't updating the scroll
 - deal w/ old versions of WP
 - work with user's caches (i.e. trigger a post 'update' or something)
+
+DESIGNY
+=======
+(on sk)
+- make it more clear how to generate an api key or get to that url
+- make api key page nicer
+
 
 
 SECURITY

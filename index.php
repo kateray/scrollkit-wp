@@ -183,10 +183,8 @@ class Scroll {
 	 * Add the Scroll metabox to the post view so users can send content to scroll
 	 */
 	function action_add_metaboxes() {
-
 		add_meta_box( 'scroll', __( 'Scroll', 'scroll' ), array( $this, 'metabox' ),
 				'post', 'side' );
-
 	}
 
 	function build_scrollkit_edit_url($id){
@@ -207,9 +205,18 @@ class Scroll {
 			array('jquery')
 		);
 		?>
+
 			<?php if (!empty($scrollkit_id)): ?>
 				<a href="<?php echo $this->build_scrollkit_edit_url($scrollkit_id) ?>" target="_blank">
 					Edit this Scroll
+				</a>
+				<!--
+					make a confirmation dialog explaining how the scrollkit content
+					isn't moved back into WP
+				-->
+				<br>
+				<a href="javascript:;" onclick="alert('todo')">
+					Make this a normal WP post
 				</a>
 			<?php else: ?>
 				<a href="/?scrollkit=convert&p=<?php echo $post->ID ?>">
@@ -221,6 +228,8 @@ class Scroll {
 				Manually pull changes
 			</a>
 			<?php
+				// XXX popup blockers prevent this from opening
+				// launch the editor popup
 				if (!empty($_GET['scrollkitpopup'])):
 					$url = urldecode($_GET['scrollkitpopup']);
 					// ugh http://stackoverflow.com/questions/2587677/
@@ -253,18 +262,10 @@ class Scroll {
 
 	}
 
-	function include_head() {
-		// global state lolololol
-		global $post;
-		//get_post_meta($post->ID, '
-	}
 	/**
 	 * Callback to replace the current template with our blank template
 	 */
 	function load_template() {
-
-		//$wp_styles = new WP_Styles();
-		//print_r( $wp_styles->queue);
 		return dirname(__FILE__) . '/template.php';
 	}
 }
@@ -273,7 +274,7 @@ global $scroll;
 $scroll = new Scroll();
 
 
-// Below is the code to uh, store a single <input>'s val in the db...
+// TODO get this out of the global namespace
 
 // Add menu page
 function scroll_wp_add_options_page() {
