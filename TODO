@@ -1,9 +1,8 @@
 TODO
 ====
 
-- redirect properly after deleting
+- redirect properly after deleting activating etc
 - preview mode vs published
-- prevent double convert-to-scrollkit
 - HANDLE API KEY ERRORS
   - when user hit's done on SK side
   - when user hits convert to scroll on WP side
