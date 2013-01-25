@@ -18,7 +18,7 @@ if ( !defined('SCROLL_WP_BASENAME') )
 
 define( 'SCROLL_WP_FILE', __FILE__ );
 
-define( 'SCROLL_WP_SK_URL', 'http://localhost:3000/' );
+define( 'SCROLL_WP_SK_URL', 'http://scrollkit.com/' );
 define( 'SCROLL_WP_API', SCROLL_WP_SK_URL . 'api/' );
 
 class Scroll {

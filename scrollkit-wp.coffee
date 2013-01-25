@@ -1,7 +1,7 @@
 $ = jQuery
 # not actually used atm!!
 
-#apiEndpoint = 'http://localhost:3000/api'
+#apiEndpoint = 'http://scrollkit.com/api'
 
 #$('#scrollkit-wp-convert').on 'click', (e)->
   #data =
