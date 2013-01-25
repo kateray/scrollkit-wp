@@ -27,16 +27,12 @@ class Scroll {
 
 		add_action( 'add_meta_boxes', array( $this, 'action_add_metaboxes' ) );
 
-    // add_action( 'wp_ajax_scroll_send', array( $this, 'handle_ajax_scroll_send' ) );
-
-		// Scrollify if we want to
 		add_action( 'template_redirect', array( $this, 'evaluate_query_parameters' ) );
 		add_filter( 'query_vars', array( $this, 'query_vars' ) );
 
-		add_action( 'admin_menu', array( $this, 'scroll_wp_add_options_page') );
 		add_action( 'admin_init', array( $this, 'scroll_wp_init' ) );
-		add_filter( 'plugin_action_links', array( $this, 'scroll_wp_action_links' ),
-				10, 2 );
+		add_action( 'admin_menu', array( $this, 'scroll_wp_add_options_page') );
+		add_filter( 'plugin_action_links', array( $this, 'scroll_wp_action_links' ), 10, 2 );
 
 		register_uninstall_hook( __FILE__, 'scroll_wp_delete_plugin_options' );
 		register_activation_hook( __FILE__, 'scroll_wp_add_defaults' );
@@ -141,10 +137,9 @@ class Scroll {
 				$this->delete_post($post->ID);
 				break;
 		}
-		$this->temporary_redirect(get_edit_post_link($post->ID, ''));
+		$this->temporary_redirect( get_edit_post_link( $post->ID, '' ) );
 	}
 
-	// lol global state
 	function update_sk_post() {
 		$post_id = get_query_var('p');
 		$api_key = isset($_GET['key']) ? $_GET['key'] : null;
@@ -152,8 +147,8 @@ class Scroll {
 
 		$options = get_option( 'scroll_wp_options' );
 
-		if (empty($options['scrollkit_api_key'])
-				|| $api_key !== $options['scrollkit_api_key']) {
+		if ( empty( $options['scrollkit_api_key'] )
+				|| $api_key !== $options['scrollkit_api_key'] ) {
 			header('HTTP/1.0 401 Unauthorized');
 			echo 'invalid api key';
 			exit;
@@ -161,7 +156,7 @@ class Scroll {
 
 		$post = get_post($post_id);
 
-		$scroll_id = get_post_meta($post_id, '_scroll_id', true);
+		$scroll_id = get_post_meta( $post_id, '_scroll_id', true );
 		$content_url = $this->build_content_url($scroll_id);
 
 		if ( empty ( $post ) || empty ( $content_url ) ) {
@@ -359,7 +354,6 @@ class Scroll {
 	function scroll_wp_validate_options($input) {
 		//TODO regex for our api key
 		$input['scrollkit_api_key'] = wp_filter_nohtml_kses($input['scrollkit_api_key']);
-		echo 'hi';
 		return $input;
 	}
 
@@ -367,7 +361,7 @@ class Scroll {
 	function scroll_wp_init() {
 		register_setting( 'scroll_wp_plugin_options',
 				'scroll_wp_options',
-				'scroll_wp_validate_options' );
+				array( $this, 'scroll_wp_validate_options' ) );
 	}
 
 	// Display a Settings link on the main Plugins page
@@ -436,7 +430,6 @@ EOT;
 			<form method="post" action="options.php">
 				<?php settings_fields( 'scroll_wp_plugin_options' ); ?>
 				<?php $options = get_option( 'scroll_wp_options' );
-					echo 'hizz';
 					print_r($options);
 					echo 'zz'
 				?>
