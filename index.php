@@ -51,62 +51,7 @@ class Scroll {
 	 * Functionality the user to send content to scroll
 	 */
 	function metabox() {
-		global $post;
-		$options = get_option( 'scroll_wp_options' );
-		$scrollkit_id = get_post_meta( $post->ID, '_scroll_id', true );
-		global $post;
-		wp_enqueue_script(
-			'scrollkit-wp',
-			SCROLL_WP_URL . 'scrollkit-wp.js',
-			array('jquery')
-		);
-
-		// needed
-		// ======
-		// activate link
-		// deactive link
-		// delete link
-
-		?>
-
-			<?php echo get_post_meta( $post->ID, '_scroll_state', true ); ?>
-			<?php if (!empty($scrollkit_id)): ?>
-				<a href="<?php echo $this->build_scrollkit_edit_url($scrollkit_id) ?>"
-						target="_blank">
-					Edit this Scroll
-				</a>
-			<?php endif; ?>
-
-			<br>
-			<a href="<?php bloginfo('url') ?>/?scrollkit=activate&p=<?php echo $post->ID ?>">
-				Convert to Scroll or Activate Scroll
-			</a>
-
-			<br>
-			<a href="<?php bloginfo('url') ?>/?scrollkit=deactivate&p=<?php echo $post->ID ?>"
-					title="Turn this back into a normal wordpress post">
-				Dectivate Scroll
-			</a>
-
-			<br>
-			<a href="<?php bloginfo('url') ?>/?scrollkit=delete&p=<?php echo $post->ID ?>"
-					onclick="return confirm('This will permanently delete the scroll associated with this post, are you sure you want to delete it?');"
-					title="Permanently deletes the scroll associated with this post">
-				Delete Scroll
-			</a>
-
-			<?php
-				// XXX popup blockers prevent this from opening
-				// launch the editor popup
-				if (!empty($_GET['scrollkitpopup'])):
-					$url = urldecode($_GET['scrollkitpopup']);
-					// ugh http://stackoverflow.com/questions/2587677/
-			?>
-				<script>
-					window.open("<?php echo $url ?>", 'scroll kit', "height=600,width=1000");
-				</script>
-			<?php endif; ?>
-		<?php
+		include(dirname( __FILE__ ) . '/metabox-view.php');
 	}
 
 	function query_vars($wp_vars) {
@@ -391,6 +336,8 @@ class Scroll {
 
 			$blog_title = get_bloginfo('name');
 
+			// TODO consider putting this in an external file
+			// and reading it in
 			$template_header_default = <<<EOT
 <!DOCTYPE html>
 <html>
@@ -420,59 +367,8 @@ EOT;
 	}
 
 	function scroll_wp_render_form() {
-		?>
-		<div class="wrap">
-
-			<div class="icon32" id="icon-options-general"><br></div>
-			<h2>Scroll Kit WP</h2>
-			<!--<p>You could have some words here if you are a fancy plugin</p>-->
-
-			<form method="post" action="options.php">
-				<?php settings_fields( 'scroll_wp_plugin_options' ); ?>
-				<?php $options = get_option( 'scroll_wp_options' );
-					print_r($options);
-					echo 'zz'
-				?>
-
-				<table class="form-table">
-					<tr>
-						<th scope="row">Scroll Kit API Key</th>
-						<td>
-							<input type="text" size="57" name="scroll_wp_options[scrollkit_api_key]" value="<?php echo $options['scrollkit_api_key']; ?>" />
-							<br>
-						 (TODO add link to get api key)
-						</td>
-					</tr>
-					<tr>
-						<td>
-							HTML Header
-						</td>
-						<td>
-							<textarea rows="10" cols="100" name="scroll_wp_options[template_header]"><?php
-								echo htmlentities($options['template_header'], ENT_QUOTES, "UTF-8")
-							?></textarea>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							HTML Footer
-						</td>
-						<td>
-							<textarea rows="10" cols="100" name="scroll_wp_options[template_footer]"><?php
-								echo htmlentities($options['template_footer'], ENT_QUOTES, "UTF-8")
-							?></textarea>
-						</td>
-					</tr>
-				</table>
-				<p class="submit">
-					<input type="submit" class="button-primary" value="<?php _e('Save Changes') ?>" />
-				</p>
-			</form>
-		</div>
-
-	<?php
+		include(dirname( __FILE__ ) . '/settings-view.php');
 	}
 }
 
-global $scroll;
-$scroll = new Scroll();
+new Scroll();
