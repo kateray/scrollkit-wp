@@ -13,7 +13,7 @@ define( 'SCROLL_WP_URL', plugin_dir_url( __FILE__ ) );
 define( 'SCROLL_WP_PATH', plugin_dir_path( __FILE__ ) );
 define( 'SCROLL_WP_BASENAME', plugin_basename( __FILE__ ) );
 define( 'SCROLL_WP_FILE', __FILE__ );
-define( 'SCROLL_WP_SK_URL', 'http://www.scrollkit.com/' );
+define( 'SCROLL_WP_SK_URL', 'https://www.scrollkit.com/' );
 //define( 'SCROLL_WP_SK_URL', 'localhost:3000/' );
 define( 'SCROLL_WP_API', SCROLL_WP_SK_URL . 'api/' );
 
