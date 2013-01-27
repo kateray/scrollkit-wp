@@ -9,16 +9,12 @@ Author URI: http://scrollkit.com
 License: GPL2
 */
 
-if ( !defined('SCROLL_WP_URL') )
-	define( 'SCROLL_WP_URL', plugin_dir_url( __FILE__ ) );
-if ( !defined('SCROLL_WP_PATH') )
-	define( 'SCROLL_WP_PATH', plugin_dir_path( __FILE__ ) );
-if ( !defined('SCROLL_WP_BASENAME') )
-	define( 'SCROLL_WP_BASENAME', plugin_basename( __FILE__ ) );
-
+define( 'SCROLL_WP_URL', plugin_dir_url( __FILE__ ) );
+define( 'SCROLL_WP_PATH', plugin_dir_path( __FILE__ ) );
+define( 'SCROLL_WP_BASENAME', plugin_basename( __FILE__ ) );
 define( 'SCROLL_WP_FILE', __FILE__ );
-
-define( 'SCROLL_WP_SK_URL', 'http://scrollkit.com/' );
+define( 'SCROLL_WP_SK_URL', 'http://www.scrollkit.com/' );
+//define( 'SCROLL_WP_SK_URL', 'localhost:3000/' );
 define( 'SCROLL_WP_API', SCROLL_WP_SK_URL . 'api/' );
 
 class Scroll {
@@ -166,7 +162,8 @@ class Scroll {
 
 		// TODO handle errors
 		if ( $status != 200 ) {
-			die("eeek! response: $status");
+			die("eeek! response: $status\nurl: $url\ndata: $data");
+
 		}
 
 		curl_close($curl);
