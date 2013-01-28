@@ -13,8 +13,8 @@ define( 'SCROLL_WP_URL', plugin_dir_url( __FILE__ ) );
 define( 'SCROLL_WP_PATH', plugin_dir_path( __FILE__ ) );
 define( 'SCROLL_WP_BASENAME', plugin_basename( __FILE__ ) );
 define( 'SCROLL_WP_FILE', __FILE__ );
-define( 'SCROLL_WP_SK_URL', 'https://www.scrollkit.com/' );
-//define( 'SCROLL_WP_SK_URL', 'localhost:3000/' );
+//define( 'SCROLL_WP_SK_URL', 'https://www.scrollkit.com/' );
+define( 'SCROLL_WP_SK_URL', 'http://localhost:3000/' );
 define( 'SCROLL_WP_API', SCROLL_WP_SK_URL . 'api/' );
 
 class Scroll {
@@ -28,12 +28,12 @@ class Scroll {
 
 		add_action( 'admin_init', array( $this, 'scroll_wp_init' ) );
 		add_action( 'admin_menu', array( $this, 'scroll_wp_add_options_page') );
-		add_filter( 'plugin_action_links', array( $this, 'scroll_wp_action_links' ), 10, 2 );
+		add_filter( 'plugin_action_links', array( $this, 'scroll_wp_action_links' ),
+				10, 2 );
 
 		register_uninstall_hook( __FILE__, 'scroll_wp_delete_plugin_options' );
 		register_activation_hook( __FILE__, 'scroll_wp_add_defaults' );
 	}
-
 
 	/**
 	 * Adds a menu page that's accessible from the settings category in wp-admin

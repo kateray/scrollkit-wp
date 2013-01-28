@@ -1,7 +1,7 @@
 TODO
 ====
 
-- redirect properly after deleting activating etc
+use a modal 
 - preview mode vs published
 - HANDLE API KEY ERRORS
   - when user hit's done on SK side
