@@ -15,6 +15,9 @@ use a modal
 - make unpublished and previewable SK posts work normally
 - security
 
+SK SIDE:
+  handle logged out users correctly when they try to edit a post
+
 DESIGNY
 =======
 (on sk)
