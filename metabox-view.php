@@ -3,7 +3,7 @@
 global $post;
 $options = get_option( 'scroll_wp_options' );
 $scrollkit_id = get_post_meta( $post->ID, '_scroll_id', true );
-global $post;
+
 wp_enqueue_script(
 	'scrollkit-wp',
 	SCROLL_WP_URL . 'scrollkit-wp.js',
@@ -12,6 +12,7 @@ wp_enqueue_script(
 
 $state = get_post_meta( $post->ID, '_scroll_state', true );
 
+// different text based on scroll state
 $copy = array();
 
 switch($state){
@@ -25,7 +26,6 @@ switch($state){
 	default:
 		$copy['heading'] = "Convert this Post into a Scroll";
 		$copy['activate'] = "Convert Post";
-
 }
 
 ?>

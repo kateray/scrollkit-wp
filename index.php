@@ -33,6 +33,26 @@ class Scroll {
 
 		register_uninstall_hook( __FILE__, 'scroll_wp_delete_plugin_options' );
 		register_activation_hook( __FILE__, 'scroll_wp_add_defaults' );
+
+	  $blog_title = get_bloginfo('name');
+		$this->template_header_default = <<<EOT
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>{{title}} | $blog_title</title>
+		<meta name="viewport" content="width=980">
+		{{stylesheets}}
+	</head>
+	<body class="published">
+		<div id="skrollr-body">
+EOT;
+
+		$this->template_footer_default = <<<EOT
+			{{scripts}}
+		</div>
+	</body>
+</html>
+EOT;
 	}
 
 	/**
@@ -176,8 +196,8 @@ class Scroll {
 	 * Add the Scroll metabox to the post view so users can send content to scroll
 	 */
 	function action_add_metaboxes() {
-		add_meta_box( 'scroll', __( 'Scroll', 'scroll' ), array( $this, 'metabox' ),
-				'post', 'side' );
+		add_meta_box( 'scroll', __( 'Scroll Kit', 'scroll' ),
+				array( $this, 'metabox' ), 'post', 'side' );
 	}
 
 	function build_scrollkit_edit_url($id) {
@@ -331,34 +351,12 @@ class Scroll {
 		$tmp = get_option( 'scroll_wp_options' );
 		if(!is_array($tmp)) {
 
-			$blog_title = get_bloginfo('name');
-
-			// TODO consider putting this in an external file
-			// and reading it in
-			$template_header_default = <<<EOT
-<!DOCTYPE html>
-<html>
-	<head>
-		<title>{{title}} | $blog_title</title>
-		<meta name="viewport" content="width=980">
-		{{stylesheets}}
-	</head>
-	<body class="published">
-		<div id="skrollr-body">
-EOT;
-
-			$template_footer_default = <<<EOT
-			{{scripts}}
-		</div>
-	</body>
-</html>
-EOT;
-
 			$arr = array(
 				"scrollkit_api_key" => "",
-				"template_header" => $template_header_default,
-				"template_footer" => $template_footer_default,
+				"template_header" => $this->template_header_default,
+				"template_footer" => $this->template_footer_default,
 			);
+
 			update_option('scroll_wp_options', $arr);
 		}
 	}
@@ -369,3 +367,4 @@ EOT;
 }
 
 new Scroll();
+
