@@ -1,18 +1,15 @@
 TODO
 ====
 
-- preview mode vs published
+- work with user's caches (i.e. trigger a post 'update' or something)
 - HANDLE API KEY ERRORS
   - when user hit's done on SK side
   - when user hits convert to scroll on WP side
 - figure out how to kill the connection after getting pinged and then keep
   doing work
-- make clear to users that when they edit wp post, they aren't updating the scroll
+- handle the case where a user deletes the post on scrollkit
+
 - deal w/ old versions of WP
-- work with user's caches (i.e. trigger a post 'update' or something)
-- only let admins edit the header and footer bits (security)
-- make unpublished and previewable SK posts work normally
-- security
 
 SK SIDE:
   handle logged out users correctly when they try to edit a post
