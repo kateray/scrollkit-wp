@@ -255,7 +255,9 @@ EOT;
 
 		$data = array();
 		$data['title'] = get_the_title($post_id);
-		$data['content'] = $post->post_content;
+		$content = $post->post_content;
+		$content = str_replace(PHP_EOL, '<br />&nbsp;', $content);
+		$data['content'] = $content;
 		$data['cms_id'] = $post_id;
 		// XXX probably not smart to include paramaterized callback url
 		$data['cms_url'] = get_bloginfo('url') . '?scrollkit=update';
