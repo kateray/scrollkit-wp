@@ -35,6 +35,7 @@ class Scroll {
 		register_activation_hook( __FILE__, 'scroll_wp_add_defaults' );
 
 	  $blog_title = get_bloginfo('name');
+
 		$this->template_header_default = <<<EOT
 <!DOCTYPE html>
 <html>
@@ -48,11 +49,12 @@ class Scroll {
 EOT;
 
 		$this->template_footer_default = <<<EOT
-			{{scripts}}
 		</div>
+		{{scripts}}
 	</body>
 </html>
 EOT;
+
 	}
 
 	/**
@@ -130,6 +132,7 @@ EOT;
 		$results = wp_remote_get( $content_url );
 		//TODO handle non 2XX response
 		//if( is_wp_error( $response ) ) { ...
+
 		$data = json_decode( $results['body'] );
 
 		//$data = json_decode ( $this->fetch_data_from_url( $content_url ) ) ;
@@ -169,7 +172,6 @@ EOT;
 		$state = get_post_meta( $post_ID, '_scroll_state', true );
 		$state = empty($state) ? 'none' : $state;
 
-		// if a post is activated, return
 		switch($state) {
 			case 'active':
 				return;
@@ -238,7 +240,7 @@ EOT;
 		);
 
 		// TODO handle non 2XX
-		// ESPECIALLY WRONT API KEY ERRORS
+		// ESPECIALLY WRONG API KEY ERRORS
 		$response_body = json_decode( $response['body'], true );
 
 		update_post_meta($post->ID, '_scroll_id', $response_body['sk_id']);
@@ -307,6 +309,7 @@ EOT;
 					. 'page=scroll-wp/index.php">'
 					. __('Settings')
 					. '</a>';
+
 			// make the 'Settings' link appear first
 			array_unshift( $links, $settings_link );
 		}

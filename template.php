@@ -6,7 +6,7 @@
 	function render_template($data, $template){
 		$rendered = $template;
 		foreach ($data as $key => $val){
-			$pattern = "/{{" . $key . "}}/";
+			$pattern = "/{{\s*" . $key . "\s*}}/";
 			$rendered = preg_replace($pattern, $val, $rendered);
 		}
 		return $rendered;
@@ -38,9 +38,10 @@
 
 	$debug = '';
 	if (WP_DEBUG === true){
-		$debug .= "\n<!--\n";
-		$debug .= 'scroll id: ' . get_post_meta($post->ID, '_scroll_id', true);
-		$debug .= "\n-->\n";
+		$debug .= "\n<!--";
+		$debug .= "\nscroll id: " . get_post_meta($post->ID, '_scroll_id', true);
+		$debug .= "\n-->";
+		$debug .= "\n";
 	}
 
 	$header = render_template($data, $options['template_header']);
