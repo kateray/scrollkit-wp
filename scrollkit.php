@@ -306,7 +306,7 @@ EOT;
 
 		if ( $file == plugin_basename( __FILE__ ) ) {
 			$settings_link = '<a href="'.get_admin_url().'options-general.php?'
-					. 'page=scroll-wp/index.php">'
+					. 'page=scroll-wp/scrollkit.php">'
 					. __('Settings')
 					. '</a>';
 
