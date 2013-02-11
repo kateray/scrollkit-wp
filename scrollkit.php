@@ -83,22 +83,24 @@ EOT;
 		}
 
 		// there are prettier ways to do this
-		global $post;
+		$post_id = get_query_var('p');
 		switch ( $method ) {
 			case 'update':
-				$this->update_sk_post($post->ID);
+				$this->update_sk_post($post_id);
 				break;
 			case 'activate':
-				$this->activate_post($post->ID);
+				$this->activate_post($post_id);
 				break;
 			case 'deactivate':
-				$this->deactivate_post($post->ID);
+				$this->deactivate_post($post_id);
 				break;
 			case 'delete':
-				$this->delete_post($post->ID);
+				$this->delete_post($post_id);
 				break;
 		}
-		$this->temporary_redirect( get_edit_post_link( $post->ID, '' ) );
+
+		$this->temporary_redirect( get_edit_post_link( $post_id, '' ) );
+
 	}
 
 	function update_sk_post() {
@@ -115,7 +117,7 @@ EOT;
 			exit;
 		}
 
-		$post = get_post($post_id);
+		$post = get_post( $post_id );
 
 		$scroll_id = get_post_meta( $post_id, '_scroll_id', true );
 		$content_url = $this->build_content_url($scroll_id);
@@ -125,12 +127,17 @@ EOT;
 			die('there is a problem');
 		}
 
-		$data = json_decode ( $this->fetch_data_from_url( $content_url ) ) ;
+		$results = wp_remote_get( $content_url );
+		//TODO handle non 2XX response
+		//if( is_wp_error( $response ) ) { ...
+		$data = json_decode( $results['body'] );
 
-		update_post_meta( $post->ID, '_scroll_content', $data->content );
-		update_post_meta( $post->ID, '_scroll_css', $data->css );
-		update_post_meta( $post->ID, '_scroll_fonts', $data->fonts );
-		update_post_meta( $post->ID, '_scroll_js',  $data->js );
+		//$data = json_decode ( $this->fetch_data_from_url( $content_url ) ) ;
+
+		update_post_meta( $post_id, '_scroll_content', $data->content );
+		update_post_meta( $post_id, '_scroll_css', $data->css );
+		update_post_meta( $post_id, '_scroll_fonts', $data->fonts );
+		update_post_meta( $post_id, '_scroll_js',  $data->js );
 
 		$edit = get_edit_post_link( $post->ID , '' );
 		header( 'Content-Type:' );
@@ -145,52 +152,6 @@ EOT;
 		return SCROLL_WP_SK_URL . "s/$scrollkit_id/content";
 	}
 
-	/*
-	 * Returns the data of a get request on a URL
-	 */
-	function fetch_data_from_url ($url) {
-		$curl_session = curl_init();
-		curl_setopt($curl_session, CURLOPT_URL, $url);
-		curl_setopt($curl_session, CURLOPT_BINARYTRANSFER, true);
-		curl_setopt($curl_session, CURLOPT_RETURNTRANSFER, true);
-
-		$data = curl_exec ( $curl_session );
-		curl_close ( $curl_session );
-
-		return $data;
-	}
-
-	/*
-	 * Posts your array to a url as JSON and returns a php array
-	 * TODO throw exception if the server response isn't a 2XX
-	 */
-	function post_array_as_json_to_url ($url, $data) {
-
-		$content = json_encode($data);
-
-		$curl = curl_init($url);
-		curl_setopt($curl, CURLOPT_HEADER, false);
-		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($curl, CURLOPT_HTTPHEADER,
-		array("Content-type: application/json"));
-		curl_setopt($curl, CURLOPT_POST, true);
-		curl_setopt($curl, CURLOPT_POSTFIELDS, $content);
-
-		$json_response = curl_exec($curl);
-
-		$status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
-		// TODO handle errors
-		if ( $status != 200 ) {
-			die("eeek! response: $status\nurl: $url\ndata: $data");
-
-		}
-
-		curl_close($curl);
-
-		$response = json_decode($json_response, true);
-		return $response;
-	}
 
 	/**
 	 * Add the Scroll metabox to the post view so users can send content to scroll
@@ -263,9 +224,24 @@ EOT;
 		$data['cms_url'] = get_bloginfo('url') . '?scrollkit=update';
 		$data['api_key'] = $api_key;
 
-		$response = $this->post_array_as_json_to_url(SCROLL_WP_API . 'new', $data);
 
-		update_post_meta($post->ID, '_scroll_id', $response['sk_id']);
+		$response = wp_remote_post( SCROLL_WP_API . 'new',  array(
+				'method' => 'POST',
+				'timeout' => 45,
+				'redirection' => 5,
+				'httpversion' => '1.0',
+				'blocking' => true,
+				'headers' => array(),
+				'body' => $data,
+				'cookies' => array()
+			)
+		);
+
+		// TODO handle non 2XX
+		// ESPECIALLY WRONT API KEY ERRORS
+		$response_body = json_decode( $response['body'], true );
+
+		update_post_meta($post->ID, '_scroll_id', $response_body['sk_id']);
 
 		// set some defaults
 		update_post_meta($post->ID, '_scroll_state', 'active');
@@ -274,7 +250,7 @@ EOT;
 		update_post_meta($post->ID, '_scroll_fonts', '');
 		update_post_meta($post->ID, '_scroll_js', array());
 
-		$encoded_edit_link = urlencode($this->build_edit_url($response['sk_id']));
+		$encoded_edit_link = urlencode($this->build_edit_url($response_body['sk_id']));
 
 		$edit = get_edit_post_link($post->ID , '');
 
@@ -356,7 +332,7 @@ EOT;
 			$arr = array(
 				"scrollkit_api_key" => "",
 				"template_header" => $this->template_header_default,
-				"template_footer" => $this->template_footer_default,
+				"template_footer" => $this->template_footer_default
 			);
 
 			update_option('scroll_wp_options', $arr);
@@ -369,4 +345,3 @@ EOT;
 }
 
 new Scroll();
-
