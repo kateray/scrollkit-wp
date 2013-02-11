@@ -99,7 +99,7 @@ EOT;
 				break;
 		}
 
-		$this->temporary_redirect( get_edit_post_link( $post_id, '' ) );
+		wp_safe_redirect( get_edit_post_link( $post_id, '' ) );
 
 	}
 
@@ -254,12 +254,7 @@ EOT;
 
 		$edit = get_edit_post_link($post->ID , '');
 
-		$this->temporary_redirect($edit . "&scrollkitpopup=$encoded_edit_link");
-	}
-
-	function temporary_redirect($url) {
-		header("Location: $url", true, 302);
-		exit;
+		wp_safe_redirect($edit . "&scrollkitpopup=$encoded_edit_link");
 	}
 
 	/**

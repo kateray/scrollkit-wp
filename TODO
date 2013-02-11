@@ -34,12 +34,6 @@ which is pretty much a horrible idea. You need to have some type
 of authentication mechanism such that WordPress will only accept requests from 
 Scroll Kit. Same thing applies for user-api.php
 
-- Remote requests and posts should use the WP HTTP API:
-  http://codex.wordpress.org/HTTP_API
-
-- Redirects should use wp_safe_redirect():
-  http://codex.wordpress.org/Function_Reference/wp_safe_redirect
-
 - Any foreign data should be safely sanitized before use:
   http://codex.wordpress.org/Validating_Sanitizing_and_Escaping_User_Data
 
