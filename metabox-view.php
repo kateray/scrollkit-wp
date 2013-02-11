@@ -27,9 +27,9 @@ switch($state){
 <h4><?php echo $copy['heading'] ?></h4>
 
 <?php if (!empty($scrollkit_id)): ?>
-	<a href="<?php echo $this->build_scrollkit_edit_url($scrollkit_id) ?>" target="_blank">
-		Edit Scroll
-	</a>
+<a href="<?php echo $this->build_scrollkit_edit_url($scrollkit_id) ?>" target="_blank">
+	Edit Scroll
+</a>
 <?php endif; ?>
 
 <?php if( $state !== 'active' ): ?>
@@ -55,12 +55,11 @@ switch($state){
 </a>
 
 <?php if (WP_DEBUG === true): ?>
-		<pre>
+<pre>
 DEBUG
 _scroll_id: <?php echo get_post_meta( $post->ID, '_scroll_id', true ); ?>
 
 _scroll_state: <?php echo get_post_meta( $post->ID, '_scroll_state', true ); ?>
-
-		</pre>
+</pre>
 <?php endif ?>
 
