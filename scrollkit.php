@@ -17,6 +17,7 @@ define( 'SCROLL_WP_FILE', __FILE__ );
 define( 'SCROLL_WP_SK_URL', 'http://localhost:3000/' );
 define( 'SCROLL_WP_API', SCROLL_WP_SK_URL . 'api/' );
 
+
 class Scroll {
 
 	function __construct() {
@@ -124,14 +125,13 @@ EOT;
 		$scroll_id = get_post_meta( $post_id, '_scroll_id', true );
 		$content_url = $this->build_content_url($scroll_id);
 
-		if ( empty ( $post ) || empty ( $content_url ) ) {
+		if ( empty( $post ) || empty( $content_url ) ) {
 			// TODO make this less shitty
 			die('there is a problem');
 		}
 
 		$results = wp_remote_get( $content_url );
-		//TODO handle non 2XX response
-		//if( is_wp_error( $response ) ) { ...
+		// TODO handle non 2XX response
 
 		$data = json_decode( $results['body'] );
 
@@ -168,11 +168,15 @@ EOT;
 		return SCROLL_WP_SK_URL . "s/$id/edit";
 	}
 
+	function get_settings_url() {
+		return get_admin_url() . 'options-general.php?page=scroll-wp/scrollkit.php';
+	}
+
 	function activate_post($post_ID) {
 		$state = get_post_meta( $post_ID, '_scroll_state', true );
-		$state = empty($state) ? 'none' : $state;
+		$state = empty( $state ) ? 'none' : $state;
 
-		switch($state) {
+		switch ($state) {
 			case 'active':
 				return;
 			case 'inactive':
@@ -197,8 +201,6 @@ EOT;
 	 */
 	function delete_post($post_ID) {
 		delete_post_meta($post_ID, '_scroll_id');
-
-		// set some defaults
 		delete_post_meta($post_ID, '_scroll_state');
 		delete_post_meta($post_ID, '_scroll_content');
 		delete_post_meta($post_ID, '_scroll_css');
@@ -226,7 +228,6 @@ EOT;
 		$data['cms_url'] = get_bloginfo('url') . '?scrollkit=update';
 		$data['api_key'] = $api_key;
 
-
 		$response = wp_remote_post( SCROLL_WP_API . 'new',  array(
 				'method' => 'POST',
 				'timeout' => 45,
@@ -241,7 +242,20 @@ EOT;
 
 		// TODO handle non 2XX
 		// ESPECIALLY WRONG API KEY ERRORS
+		$http_response_code = $response['response']['code'];
+		if ( is_wp_error( $response ) ) {
+			wp_die($response->get_error_message(), 'Error with Scroll Kit WP');
+		} else if ( $http_response_code === 422) {
+			// redirect and tell the user to fix their api key
+			$destination = add_query_arg('api-key-error', 'true', $this->get_settings_url());
+			wp_safe_redirect($destination);
+			exit;
+		} else if ( $http_response_code !== 200) {
+			wp_die("Scroll Kit had an unexpected error, please contact hey@scrollkit.com if this continues to happen", "Error with Scroll Kit WP");
+		}
+
 		$response_body = json_decode( $response['body'], true );
+
 
 		update_post_meta($post->ID, '_scroll_id', $response_body['sk_id']);
 
@@ -277,7 +291,6 @@ EOT;
 			add_action( 'wp_head', array( $this, 'include_head' ) );
 			add_filter( 'single_template', array( $this, 'load_template' ), 100 );
 		}
-
 	}
 
 	/**
@@ -305,8 +318,9 @@ EOT;
 	function scroll_wp_action_links( $links, $file ) {
 
 		if ( $file == plugin_basename( __FILE__ ) ) {
-			$settings_link = '<a href="'.get_admin_url().'options-general.php?'
-					. 'page=scroll-wp/scrollkit.php">'
+			$settings_link = '<a href="'
+					. $this->get_settings_url()
+				  . '">'
 					. __('Settings')
 					. '</a>';
 
@@ -320,6 +334,8 @@ EOT;
 	// Delete options table entries ONLY when plugin deactivated AND deleted
 	function scroll_wp_delete_plugin_options() {
 		delete_option('scroll_wp_options');
+		// note that this doesn't remove metadata associated with posts
+		// not sure if that's a good idea
 	}
 
 	// sets some default values on first activation
