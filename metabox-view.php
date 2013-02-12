@@ -37,6 +37,14 @@ switch($state){
 <a href="<?php bloginfo('url') ?>/?scrollkit=activate&p=<?php echo $post->ID ?>">
 	<?php echo $copy['activate'] ?>
 </a>
+<?php else: ?>
+
+<div class="updated">
+	<p>
+		This post is a scroll. You can <a href="<?php echo $this->build_scrollkit_edit_url($scrollkit_id) ?>" target="_blank">edit this post with Scroll Kit</a>
+	</p>
+</div>
+
 <?php endif ?>
 
 <?php if( $state !== 'inactive' ): ?>
