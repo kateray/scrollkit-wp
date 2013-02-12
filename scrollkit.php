@@ -37,8 +37,9 @@ class Scroll {
 		add_filter( 'plugin_action_links', array( $this, 'scroll_wp_action_links' ),
 				10, 2 );
 
-		register_uninstall_hook( __FILE__, 'scroll_wp_delete_plugin_options' );
-		register_activation_hook( __FILE__, 'scroll_wp_add_defaults' );
+		// TODO test this
+		register_uninstall_hook( __FILE__, array( 'Scroll', 'scroll_wp_delete_plugin_options' ) );
+		register_activation_hook( __FILE__, array( $this, 'scroll_wp_add_defaults' ));
 
 	  $blog_title = get_bloginfo('name');
 
@@ -339,7 +340,7 @@ EOT;
 	}
 
 	// Delete options table entries ONLY when plugin deactivated AND deleted
-	function scroll_wp_delete_plugin_options() {
+	public static function scroll_wp_delete_plugin_options() {
 		delete_option('scroll_wp_options');
 		// note that this doesn't remove metadata associated with posts
 		// not sure if that's a good idea
