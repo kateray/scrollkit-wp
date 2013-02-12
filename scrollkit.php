@@ -20,7 +20,7 @@ define( 'SCROLL_WP_FILE', __FILE__ );
 if ( defined('SK_DEBUG_URL') ) {
 	define( 'SCROLL_WP_SK_URL', SK_DEBUG_URL );
 } else {
-	define( 'SCROLL_WP_SK_URL', 'https://www.scrollkit.com/' );
+	define( 'SCROLL_WP_SK_URL', 'http://www.scrollkit.com/' );
 }
 
 define( 'SCROLL_WP_API', SCROLL_WP_SK_URL . 'api/' );
@@ -136,11 +136,15 @@ EOT;
 
 		if ( empty( $post ) || empty( $content_url ) ) {
 			// TODO make this less shitty
-			die('there is a problem');
+			wp_die('there is a problem');
 		}
 
 		$results = wp_remote_get( $content_url );
 		// TODO handle non 2XX response
+
+		if ( is_wp_error( $results) ) {
+			wp_die($results->get_error_message());
+		}
 
 		$data = json_decode( $results['body'] );
 
@@ -170,7 +174,7 @@ EOT;
 	 */
 	function action_add_metaboxes() {
 		add_meta_box( 'scroll', __( 'Scroll Kit', 'scroll' ),
-				array( $this, 'metabox' ), 'post', 'side' );
+				array( $this, 'metabox' ), 'post', 'side', 'high' );
 	}
 
 	function build_scrollkit_edit_url($id) {
@@ -254,7 +258,6 @@ EOT;
 			wp_die($response->get_error_message());
 		}
 
-		// TODO handle non 2XX
 		$http_response_code = $response['response']['code'];
 		if ( $http_response_code === 422) {
 			// redirect and tell the user to fix their api key

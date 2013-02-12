@@ -2,12 +2,12 @@ TODO
 ====
 
 - work with user's caches (i.e. trigger a post 'update' or something)
-- HANDLE API KEY ERRORS
-  - when user hit's done on SK side
-  - when user hits convert to scroll on WP side
 - figure out how to kill the connection after getting pinged and then keep
   doing work
 - handle the case where a user deletes the post on scrollkit
+- images (and other media) that could be in a wordpress post
+- handle case where api key has been updated on wordpress' side, but the 
+  user is editing an existing post
 
 - deal w/ old versions of WP
 

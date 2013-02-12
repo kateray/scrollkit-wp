@@ -37,7 +37,7 @@
 				<td>
 					<input type="text" size="57" name="scroll_wp_options[scrollkit_api_key]" value="<?php echo $options['scrollkit_api_key']; ?>" />
 					<br>
-				  (TODO add link to get api key)
+				  <a href="https://www.scrollkit.com/api/wp" target="_blank">Get an api key</a>
 				</td>
 			</tr>
 			<tr>
