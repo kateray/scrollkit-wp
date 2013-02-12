@@ -13,8 +13,13 @@ define( 'SCROLL_WP_URL', plugin_dir_url( __FILE__ ) );
 define( 'SCROLL_WP_PATH', plugin_dir_path( __FILE__ ) );
 define( 'SCROLL_WP_BASENAME', plugin_basename( __FILE__ ) );
 define( 'SCROLL_WP_FILE', __FILE__ );
-//define( 'SCROLL_WP_SK_URL', 'https://www.scrollkit.com/' );
-define( 'SCROLL_WP_SK_URL', 'http://localhost:3000/' );
+
+if (WP_DEBUG === true) {
+	define( 'SCROLL_WP_SK_URL', 'http://localhost:3000/' );
+} else {
+	define( 'SCROLL_WP_SK_URL', 'https://www.scrollkit.com/' );
+}
+
 define( 'SCROLL_WP_API', SCROLL_WP_SK_URL . 'api/' );
 
 
@@ -89,7 +94,7 @@ EOT;
 		$post_id = get_query_var('p');
 		switch ( $method ) {
 			case 'update':
-				$this->update_sk_post($post_id);
+				$this->update_sk_post( $post_id );
 				break;
 			case 'activate':
 				$this->activate_post($post_id);
@@ -240,12 +245,14 @@ EOT;
 			)
 		);
 
-		// TODO handle non 2XX
-		// ESPECIALLY WRONG API KEY ERRORS
-		$http_response_code = $response['response']['code'];
+		// Handle wp errors
 		if ( is_wp_error( $response ) ) {
-			wp_die($response->get_error_message(), 'Error with Scroll Kit WP');
-		} else if ( $http_response_code === 422) {
+			wp_die($response->get_error_message());
+		}
+
+		// TODO handle non 2XX
+		$http_response_code = $response['response']['code'];
+		if ( $http_response_code === 422) {
 			// redirect and tell the user to fix their api key
 			$destination = add_query_arg('api-key-error', 'true', $this->get_settings_url());
 			wp_safe_redirect($destination);
