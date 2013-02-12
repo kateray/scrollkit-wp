@@ -14,8 +14,11 @@ define( 'SCROLL_WP_PATH', plugin_dir_path( __FILE__ ) );
 define( 'SCROLL_WP_BASENAME', plugin_basename( __FILE__ ) );
 define( 'SCROLL_WP_FILE', __FILE__ );
 
-if (WP_DEBUG === true) {
-	define( 'SCROLL_WP_SK_URL', 'http://localhost:3000/' );
+// put this into your wp-config.php if you want to use a
+// local version of scrollkit on there
+// define('SK_DEBUG_URL', 'http://localhost:3000/');
+if ( defined('SK_DEBUG_URL') ) {
+	define( 'SCROLL_WP_SK_URL', SK_DEBUG_URL );
 } else {
 	define( 'SCROLL_WP_SK_URL', 'https://www.scrollkit.com/' );
 }
