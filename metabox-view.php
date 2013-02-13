@@ -39,11 +39,24 @@ switch($state){
 		class="button">
 	<?php echo $copy['activate'] ?>
 </a>
+<?php // inline js like a boss ?>
+<a href="#TB_inline?height=155&width=300&inlineId=sk-load-scroll" class="button thickbox">
+	Load Existing Scroll
+</a>
+<div style="display: none" id="sk-load-existing">
+	<form method="GET">
+		<label>
+			URL to scroll or scroll id
+			<input name="skid" placeholder="http://www.scrollkit.com/s/f0Z9WbS/" />
+			<input type="submit" value="Load Scroll" />
+		</label>
+	</form>
+</div>
 <?php else: ?>
 
 <div class="updated">
 	<p>
-		This post is a scroll. You can <a href="<?php echo $this->build_edit_url($scrollkit_id) ?>" target="_blank">edit this post with Scroll Kit</a>
+		This post is a scroll. <a href="<?php echo $this->build_edit_url($scrollkit_id) ?>" target="_blank">Edit this post with Scroll Kit</a>
 	</p>
 </div>
 

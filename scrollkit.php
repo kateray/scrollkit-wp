@@ -14,8 +14,7 @@ define( 'SCROLL_WP_PATH', plugin_dir_path( __FILE__ ) );
 define( 'SCROLL_WP_BASENAME', plugin_basename( __FILE__ ) );
 define( 'SCROLL_WP_FILE', __FILE__ );
 
-// put this into your wp-config.php if you want to
-// scrollkit locally
+// put this into your wp-config.php if you are running scrollkit locally:
 // define('SK_DEBUG_URL', 'http://localhost:3000/');
 if ( defined('SK_DEBUG_URL') ) {
 	define( 'SCROLL_WP_SK_URL', SK_DEBUG_URL );
@@ -34,10 +33,14 @@ class Scroll {
 
 		add_action( 'template_redirect', array( $this, 'template_redirect' ) );
 
-		add_filter( 'query_vars', array( $this, 'query_vars' ) );
-
 		add_action( 'admin_init', array( $this, 'scroll_wp_init' ) );
 		add_action( 'admin_menu', array( $this, 'scroll_wp_add_options_page') );
+
+
+		add_filter( 'query_vars', array( $this, 'query_vars' ) );
+
+		add_filter( 'admin_footer', array( $this, 'load_scroll_form') );
+
 		add_filter( 'plugin_action_links',
 				array( $this, 'scroll_wp_action_links' ), 10, 2 );
 
@@ -102,10 +105,9 @@ EOT;
 
 		// deal with special scroll action calls - scrollkit will make these
 		// when a user hits 'done' on scroll kit
-		$method = get_query_var('scrollkit');
-		if ( !empty($method) ) {
-			$post_id = get_query_var('p');
-			$this->handle_scroll_action($method, $post_id);
+		$scrollkit_param = get_query_var('scrollkit');
+		if ( !empty($scrollkit_param) ) {
+			$this->handle_scroll_action();
 			wp_safe_redirect( get_edit_post_link( $post_id, '' ) );
 			exit;
 		}
@@ -127,13 +129,22 @@ EOT;
 	 * Handle actions to scrolls, redirecting the user back to the post
 	 * edit view
 	 */
-	function handle_scroll_action($method, $post_id) {
+	function handle_scroll_action() {
+		$method = get_query_var('scrollkit');
+		$post_id = get_query_var('p');
+
 		switch ( $method ) {
 			case 'update':
+				$this->validate_api_key();
 				$this->update_sk_post( $post_id );
+				header( 'Content-Type:' );
+				exit;
 				break;
 			case 'activate':
 				$this->activate_post($post_id);
+				break;
+			case 'load':
+				$this->load_scroll($post_id);
 				break;
 			case 'deactivate':
 				$this->deactivate_post($post_id);
@@ -144,13 +155,7 @@ EOT;
 		}
 	}
 
-	/**
-	 * Updates wordpress' copy of a scroll post by fetching the data from
-	 * scrollkit
-	 */
-	function update_sk_post() {
-		$post_id = get_query_var('p');
-
+	function validate_api_key() {
 		// 401 if the api key doesn't match
 		$api_key = isset($_GET['key']) ? $_GET['key'] : null;
 
@@ -162,6 +167,13 @@ EOT;
 			echo 'invalid api key';
 			exit;
 		}
+	}
+
+	/**
+	 * Updates wordpress' copy of a scroll post by fetching the data from
+	 * scrollkit
+	 */
+	function update_sk_post($post_id) {
 
 		$post = get_post( $post_id );
 
@@ -193,9 +205,6 @@ EOT;
 		update_post_meta( $post_id, '_scroll_fonts', $data->fonts );
 		update_post_meta( $post_id, '_scroll_js',  $data->js );
 
-		$edit = get_edit_post_link( $post->ID , '' );
-		header( 'Content-Type:' );
-		exit;
 	}
 
 	/**
@@ -247,6 +256,99 @@ EOT;
 				$this->convert_post();
 				return;
 		}
+	}
+
+	function load_scroll($post_id) {
+			// skid can be a scrollkit url or id
+			$skid = isset($_GET['skid']) ? $_GET['skid'] : '';
+
+			// Some people, when confronted with a problem, think
+			// “I know, I'll use regular expressions.”
+			// Now they have found true <3<3<3<3<3<3
+			$pattern = '/\s*(https?:\/\/.*\/s\/)?([a-zA-Z0-9]+).*$/';
+
+			$is_match = preg_match($pattern, $skid, $matches);
+			if ( $is_match !== 1 || count($matches) < 3 ) {
+				wp_die( 'There was an issue scrollkit URL or ID you provided' );
+			}
+			$scroll_id = $matches[2];
+
+			// fetch the user entered api key from plugin's settings
+			$options = get_option( 'scroll_wp_options' );
+			$api_key = $options['scrollkit_api_key'];
+
+
+			// collect all the data needed to send to sk
+			$data = array();
+			$data['title'] = get_the_title($post_id);
+			$data['cms_id'] = $post_id;
+			$data['cms_url'] = get_bloginfo('url') . '?scrollkit=update';
+			$data['api_key'] = $api_key;
+			$data['scroll_id'] = $scroll_id;
+
+			//print_r($data);
+			//exit();
+
+			// TODO DRY UP THIS CODE PLZPLZPLZ
+			// send the data to scrollkit
+			$response = wp_remote_post( SCROLL_WP_API . 'copy',  array(
+					'method' => 'POST',
+					'timeout' => 45,
+					'redirection' => 5,
+					'httpversion' => '1.0',
+					'blocking' => true,
+					'headers' => array(),
+					'body' => $data,
+					'cookies' => array()
+				)
+			);
+
+
+			// handle wp errors (ssl stuff, can't connect to host, etc)
+			if ( is_wp_error( $response ) ) {
+				wp_die($response->get_error_message());
+			}
+
+			// Handle sk response
+			$http_response_code = $response['response']['code'];
+
+			switch ($http_response_code) {
+				case 200:
+					break;
+				case 422:
+					// api key error, redirect the user to this plugin's setting page
+					// where there's a message indicating an api key issue
+					$destination = add_query_arg('api-key-error', 'true',
+							$this->get_settings_url());
+
+					wp_safe_redirect($destination);
+					exit;
+				default:
+					// probably a 500 error
+					wp_die("Scroll Kit had an unexpected error, please contact"
+							. " hey@scrollkit.com if this continues to happen",
+							"Error with Scroll Kit WP");
+			}
+
+			$response_body = json_decode( $response['body'], true );
+
+			update_post_meta($post_id, '_scroll_id', $response_body['sk_id']);
+
+			// set some defaults
+			update_post_meta($post_id, '_scroll_state', 'active');
+			update_post_meta($post_id, '_scroll_content', '');
+			update_post_meta($post_id, '_scroll_css', array());
+			update_post_meta($post_id, '_scroll_fonts', '');
+			update_post_meta($post_id, '_scroll_js', array());
+
+			// send the user back to the post edit context
+			// where they are notified that a post is a scroll
+			$edit_url = get_edit_post_link($post_id , '');
+			$this->update_sk_post( $post_id );
+			wp_safe_redirect($edit_url);
+
+
+			exit;
 	}
 
 	/**
@@ -426,6 +528,24 @@ EOT;
 	 */
 	function scroll_wp_render_form() {
 		include( dirname( __FILE__ ) . '/settings-view.php');
+	}
+
+
+	function load_scroll_form(){
+		global $pagenow,$typenow, $post;
+		if (!in_array( $pagenow, array( 'post.php', 'post-new.php' )))
+			return;
+	?>
+		<div id="sk-load-scroll" style="display:none">
+			<h2>Load Existing Scroll</h2>
+			<form method="GET" action="<?php bloginfo('url') ?>">
+				<input type="hidden" name="scrollkit" value="load" />
+				<input type="hidden" name="p" value="<?php the_ID() ?>" />
+				<input name="skid" placeholder="http://www.scrollkit.com/s/f0Z9WbS/" />
+				<input type="submit" value="Load Scroll" />
+			</form>
+		</div>
+	<?php
 	}
 }
 
