@@ -105,7 +105,7 @@ EOT;
 		$method = get_query_var('scrollkit');
 		if ( !empty($method) ) {
 			$post_id = get_query_var('p');
-			handle_scroll_action($method, $post_id);
+			$this->handle_scroll_action($method, $post_id);
 			wp_safe_redirect( get_edit_post_link( $post_id, '' ) );
 			exit;
 		}
