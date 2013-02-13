@@ -76,12 +76,14 @@ EOT;
 	 */
 	function scroll_wp_add_options_page() {
 		add_options_page( 'Scroll Kit WP', 'Scroll Kit WP', 'manage_options',
+				__FILE__, array( $this, 'scroll_wp_render_form' ) );
+	}
 
 	/**
 	 * Functionality the user to send content to scroll
 	 */
 	function metabox() {
-		include( dirname( __FILE__ ) . '/metabox-view.php' );
+		include(dirname( __FILE__ ) . '/metabox-view.php' );
 	}
 
 	/**
@@ -348,7 +350,6 @@ EOT;
 		$edit_url = get_edit_post_link($post->ID , '');
 		wp_safe_redirect($edit_url);
 	}
-
 
 	/**
 	 * Callback to replace the current template with our blank template
