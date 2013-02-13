@@ -27,7 +27,7 @@ switch($state){
 <h4><?php echo $copy['heading'] ?></h4>
 
 <?php if (!empty($scrollkit_id)): ?>
-<a href="<?php echo $this->build_scrollkit_edit_url($scrollkit_id) ?>" target="_blank">
+<a href="<?php echo $this->build_edit_url($scrollkit_id) ?>" target="_blank">
 	Edit Scroll
 </a>
 <?php endif; ?>
@@ -41,13 +41,13 @@ switch($state){
 
 <div class="updated">
 	<p>
-		This post is a scroll. You can <a href="<?php echo $this->build_scrollkit_edit_url($scrollkit_id) ?>" target="_blank">edit this post with Scroll Kit</a>
+		This post is a scroll. You can <a href="<?php echo $this->build_edit_url($scrollkit_id) ?>" target="_blank">edit this post with Scroll Kit</a>
 	</p>
 </div>
 
 <?php endif ?>
 
-<?php if( $state !== 'inactive' ): ?>
+<?php if ( $state !== 'inactive' ): ?>
 <br>
 <a href="<?php bloginfo('url') ?>/?scrollkit=deactivate&p=<?php echo $post->ID ?>"
 		title="Turn this back into a normal wordpress post">
