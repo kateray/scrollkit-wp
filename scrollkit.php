@@ -187,12 +187,15 @@ EOT;
 			wp_die('there is a problem');
 		}
 
+
 		$results = wp_remote_get( $content_url );
-		// TODO handle non 2XX response
 
 		if ( is_wp_error( $results) ) {
 			wp_die( $results->get_error_message() );
 		}
+
+		//echo $content_url;
+		//die();
 
 		$response_code = $results['response']['code'];
 		if ( $response_code !== 200 ) {
@@ -292,9 +295,9 @@ EOT;
 			$data['scroll_id'] = $scroll_id;
 
 			$this->request_new_scroll($data, $post_id);
-			// note that this redirects before this might be a bad idea
 
 			$this->update_sk_post( $post_id );
+
 			// send the user back to the post edit context
 			// where they are notified that a post is a scroll
 			$edit_url = get_edit_post_link($post_id , '');
@@ -356,7 +359,6 @@ EOT;
 	}
 
 	function request_new_scroll($data, $post_id) {
-
 		// send the data to scrollkit
 		$response = wp_remote_post( SCROLL_WP_API . 'new',  array(
 				'method' => 'POST',
