@@ -120,8 +120,10 @@ EOT;
 		$post_id = get_queried_object_id();
 		if ( get_post_meta( $post_id, '_scroll_state', true ) === 'active' ) {
 			remove_filter( 'the_content', 'wpautop' );
-			add_action( 'wp_head', array( $this, 'include_head' ) );
-			add_filter( 'single_template', array( $this, 'load_template' ), 100 );
+			// XXX what's this do?
+			//add_action( 'wp_head', array( $this, 'include_head' ) );
+			// DEPRECATED
+			add_filter( 'template_include', array( $this, 'load_template' ), 100 );
 		}
 	}
 
@@ -235,7 +237,10 @@ EOT;
 	 */
 	function action_add_metaboxes() {
 		add_meta_box( 'scroll', __( 'Scroll Kit', 'scroll' ),
-				array( $this, 'metabox' ), 'post', 'side', 'high' );
+				array( $this, 'metabox' ), 'post', 'side', 'core' );
+
+		add_meta_box( 'scroll', __( 'Scroll Kit', 'scroll' ),
+				array( $this, 'metabox' ), 'page', 'side', 'core' );
 	}
 
 	/**

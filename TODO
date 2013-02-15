@@ -1,6 +1,13 @@
+
+
+JANKY BEHAVIOR
+==============
+- sometimes 500s or times out when loading a scroll
+
 TODO
 ====
 
+- PAGES
 - work with user's caches (i.e. trigger a post 'update' or something)
 - figure out how to kill the connection after getting pinged and then keep
   doing work
@@ -16,21 +23,20 @@ SK SIDE:
 DESIGNY
 =======
 (on sk)
-- make it more clear how to generate an api key or get to that url
 - make api key page nicer
 - remind users what variables need to be in the header and footer
 
 SECURITY
 ========
 
-Main plugin file should be the same name as plugin directory. 
+Main plugin file should be the same name as plugin directory.
 I'd make the Github repo `scrollkit` and rename 'index.php' to 'scrollkit.php'
 
 scroll-api.php should instead use admin ajax:
 http://codex.wordpress.org/AJAX_in_Plugins
 Right now your code allows anyone to update any post,
 which is pretty much a horrible idea. You need to have some type
-of authentication mechanism such that WordPress will only accept requests from 
+of authentication mechanism such that WordPress will only accept requests from
 Scroll Kit. Same thing applies for user-api.php
 
 - Any foreign data should be safely sanitized before use:
