@@ -120,9 +120,6 @@ EOT;
 		$post_id = get_queried_object_id();
 		if ( get_post_meta( $post_id, '_scroll_state', true ) === 'active' ) {
 			remove_filter( 'the_content', 'wpautop' );
-			// XXX what's this do?
-			//add_action( 'wp_head', array( $this, 'include_head' ) );
-			// DEPRECATED
 			add_filter( 'template_include', array( $this, 'load_template' ), 100 );
 		}
 	}
@@ -139,9 +136,10 @@ EOT;
 			case 'update':
 				$this->validate_api_key();
 				$this->update_sk_post( $post_id );
+
+				// don't like this
 				header( 'Content-Type:' );
 				exit;
-				break;
 			case 'activate':
 				$this->activate_post($post_id);
 				break;
@@ -266,43 +264,46 @@ EOT;
 		}
 	}
 
+	/**
+	 * Creates a fork of an existing scroll
+	 */
 	function load_scroll($post_id) {
-			// skid can be a scrollkit url or id
-			$skid = isset($_GET['skid']) ? $_GET['skid'] : '';
+		// skid can be a scrollkit url or id
+		$skid = isset($_GET['skid']) ? $_GET['skid'] : '';
 
-			// Some people, when confronted with a problem, think
-			// “I know, I'll use regular expressions.”
-			// Now they have found true <3<3<3<3<3<3
-			$pattern = '/\s*(https?:\/\/.*\/s\/)?([a-zA-Z0-9]+).*$/';
+		// Some people, when confronted with a problem, think
+		// “I know, I'll use regular expressions.”
+		// Now they have found true <3<3<3<3<3<3
+		$pattern = '/\s*(https?:\/\/.*\/s\/)?([a-zA-Z0-9]+).*$/';
 
-			$is_match = preg_match($pattern, $skid, $matches);
-			if ( $is_match !== 1 || count($matches) < 3 ) {
-				wp_die( 'There was an issue scrollkit URL or ID you provided' );
-			}
-			$scroll_id = $matches[2];
+		$is_match = preg_match($pattern, $skid, $matches);
+		if ( $is_match !== 1 || count($matches) < 3 ) {
+			wp_die( 'There was an issue scrollkit URL or ID you provided' );
+		}
+		$scroll_id = $matches[2];
 
-			// fetch the user entered api key from plugin's settings
-			$options = get_option( 'scroll_wp_options' );
-			$api_key = $options['scrollkit_api_key'];
+		// fetch the user entered api key from plugin's settings
+		$options = get_option( 'scroll_wp_options' );
+		$api_key = $options['scrollkit_api_key'];
 
 
-			// collect all the data needed to send to sk
-			$data = array();
-			$data['title'] = get_the_title($post_id);
-			$data['cms_id'] = $post_id;
-			$data['cms_url'] = get_bloginfo('url') . '?scrollkit=update';
-			$data['api_key'] = $api_key;
-			$data['scroll_id'] = $scroll_id;
+		// collect all the data needed to send to sk
+		$data = array();
+		$data['title'] = get_the_title($post_id);
+		$data['cms_id'] = $post_id;
+		$data['cms_url'] = get_bloginfo('url') . '?scrollkit=update';
+		$data['api_key'] = $api_key;
+		$data['scroll_id'] = $scroll_id;
 
-			$this->request_new_scroll($data, $post_id);
+		$this->request_new_scroll($data, $post_id);
 
-			$this->update_sk_post( $post_id );
+		$this->update_sk_post( $post_id );
 
-			// send the user back to the post edit context
-			// where they are notified that a post is a scroll
-			$edit_url = get_edit_post_link($post_id , '');
-			wp_safe_redirect($edit_url);
-			exit;
+		// send the user back to the post edit context
+		// where they are notified that a post is a scroll
+		$edit_url = get_edit_post_link($post_id , '');
+		wp_safe_redirect($edit_url);
+		exit;
 	}
 
 	/**
@@ -458,7 +459,7 @@ EOT;
 	/**
 	 * Delete options table entries when plugin deactivated AND deleted
 	 *
-	 * (note that this doesn't remove metadata associated with posts)
+	 * note that this doesn't remove metadata associated with posts
 	 */
 	public static function scroll_wp_delete_plugin_options() {
 		delete_option('scroll_wp_options');
@@ -489,11 +490,19 @@ EOT;
 	}
 
 
+	/**
+	 * Adds a hidden modal after the editor stuff
+	 *
+	 * note:
+	 * modal's are crappy, and it would make more sense to have this in
+	 * in metabox-view.php, except the metabox stuff is inside a <form> making it
+	 * impossible to nest a second form without using js or something ugly.
+	 */
 	function load_scroll_form(){
 		global $pagenow,$typenow, $post;
 		if (!in_array( $pagenow, array( 'post.php', 'post-new.php' )))
 			return;
-	?>
+		?>
 		<div id="sk-load-scroll" style="display:none">
 			<h2>Load Existing Scroll</h2>
 			<form method="GET" action="<?php bloginfo('url') ?>">
