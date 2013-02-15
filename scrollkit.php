@@ -51,7 +51,7 @@ class Scroll {
 		register_activation_hook( __FILE__,
 				array( $this, 'scroll_wp_add_defaults' ));
 
-	  $blog_title = get_bloginfo('name');
+		$blog_title = get_bloginfo('name');
 
 		$this->template_header_default = <<<EOT
 <!DOCTYPE html>
@@ -144,7 +144,23 @@ EOT;
 				$this->activate_post($post_id);
 				break;
 			case 'load':
-				$this->load_scroll($post_id);
+				// forking a scroll, figure out what scrollkit id they want
+
+				$skid = isset($_GET['skid']) ? $_GET['skid'] : '';
+
+				// Some people, when confronted with a problem, think
+				// “I know, I'll use regular expressions.”
+				// Now they have found true <3<3<3<3<3<3
+				$pattern = '/\s*(https?:\/\/.*\/s\/)?([a-zA-Z0-9]+).*$/';
+
+				$is_match = preg_match($pattern, $skid, $matches);
+				if ( $is_match !== 1 || count($matches) < 3 ) {
+					wp_die( 'There was an issue scrollkit URL or ID you provided' );
+				}
+				$scroll_id = $matches[2];
+
+				$this->load_scroll($post_id, $skid);
+
 				break;
 			case 'deactivate':
 				$this->deactivate_post($post_id);
@@ -267,25 +283,11 @@ EOT;
 	/**
 	 * Creates a fork of an existing scroll
 	 */
-	function load_scroll($post_id) {
-		// skid can be a scrollkit url or id
-		$skid = isset($_GET['skid']) ? $_GET['skid'] : '';
-
-		// Some people, when confronted with a problem, think
-		// “I know, I'll use regular expressions.”
-		// Now they have found true <3<3<3<3<3<3
-		$pattern = '/\s*(https?:\/\/.*\/s\/)?([a-zA-Z0-9]+).*$/';
-
-		$is_match = preg_match($pattern, $skid, $matches);
-		if ( $is_match !== 1 || count($matches) < 3 ) {
-			wp_die( 'There was an issue scrollkit URL or ID you provided' );
-		}
-		$scroll_id = $matches[2];
+	function load_scroll($post_id, $scroll_id) {
 
 		// fetch the user entered api key from plugin's settings
 		$options = get_option( 'scroll_wp_options' );
 		$api_key = $options['scrollkit_api_key'];
-
 
 		// collect all the data needed to send to sk
 		$data = array();
