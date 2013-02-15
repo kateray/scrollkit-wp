@@ -291,68 +291,14 @@ EOT;
 			$data['api_key'] = $api_key;
 			$data['scroll_id'] = $scroll_id;
 
-			//print_r($data);
-			//exit();
+			$this->request_new_scroll($data, $post_id);
+			// note that this redirects before this might be a bad idea
 
-			// TODO DRY UP THIS CODE PLZPLZPLZ
-			// send the data to scrollkit
-			$response = wp_remote_post( SCROLL_WP_API . 'copy',  array(
-					'method' => 'POST',
-					'timeout' => 45,
-					'redirection' => 5,
-					'httpversion' => '1.0',
-					'blocking' => true,
-					'headers' => array(),
-					'body' => $data,
-					'cookies' => array()
-				)
-			);
-
-
-			// handle wp errors (ssl stuff, can't connect to host, etc)
-			if ( is_wp_error( $response ) ) {
-				wp_die($response->get_error_message());
-			}
-
-			// Handle sk response
-			$http_response_code = $response['response']['code'];
-
-			switch ($http_response_code) {
-				case 200:
-					break;
-				case 422:
-					// api key error, redirect the user to this plugin's setting page
-					// where there's a message indicating an api key issue
-					$destination = add_query_arg('api-key-error', 'true',
-							$this->get_settings_url());
-
-					wp_safe_redirect($destination);
-					exit;
-				default:
-					// probably a 500 error
-					wp_die("Scroll Kit had an unexpected error, please contact"
-							. " hey@scrollkit.com if this continues to happen",
-							"Error with Scroll Kit WP");
-			}
-
-			$response_body = json_decode( $response['body'], true );
-
-			update_post_meta($post_id, '_scroll_id', $response_body['sk_id']);
-
-			// set some defaults
-			update_post_meta($post_id, '_scroll_state', 'active');
-			update_post_meta($post_id, '_scroll_content', '');
-			update_post_meta($post_id, '_scroll_css', array());
-			update_post_meta($post_id, '_scroll_fonts', '');
-			update_post_meta($post_id, '_scroll_js', array());
-
+			$this->update_sk_post( $post_id );
 			// send the user back to the post edit context
 			// where they are notified that a post is a scroll
 			$edit_url = get_edit_post_link($post_id , '');
-			$this->update_sk_post( $post_id );
 			wp_safe_redirect($edit_url);
-
-
 			exit;
 	}
 
@@ -401,6 +347,16 @@ EOT;
 		$data['cms_url'] = get_bloginfo('url') . '?scrollkit=update';
 		$data['api_key'] = $api_key;
 
+		$this->request_new_scroll($data, $post_id);
+
+		// send the user back to the post edit context
+		// where they are notified that a post is a scroll
+		$edit_url = get_edit_post_link($post_id , '');
+		wp_safe_redirect($edit_url);
+	}
+
+	function request_new_scroll($data, $post_id) {
+
 		// send the data to scrollkit
 		$response = wp_remote_post( SCROLL_WP_API . 'new',  array(
 				'method' => 'POST',
@@ -442,20 +398,15 @@ EOT;
 
 		$response_body = json_decode( $response['body'], true );
 
-
-		update_post_meta($post->ID, '_scroll_id', $response_body['sk_id']);
+		update_post_meta($post_id, '_scroll_id', $response_body['sk_id']);
 
 		// set some defaults
-		update_post_meta($post->ID, '_scroll_state', 'active');
-		update_post_meta($post->ID, '_scroll_content', '');
-		update_post_meta($post->ID, '_scroll_css', array());
-		update_post_meta($post->ID, '_scroll_fonts', '');
-		update_post_meta($post->ID, '_scroll_js', array());
+		update_post_meta($post_id, '_scroll_state', 'active');
+		update_post_meta($post_id, '_scroll_content', '');
+		update_post_meta($post_id, '_scroll_css', array());
+		update_post_meta($post_id, '_scroll_fonts', '');
+		update_post_meta($post_id, '_scroll_js', array());
 
-		// send the user back to the post edit context
-		// where they are notified that a post is a scroll
-		$edit_url = get_edit_post_link($post->ID , '');
-		wp_safe_redirect($edit_url);
 	}
 
 	/**
