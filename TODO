@@ -4,6 +4,7 @@ JANKY BEHAVIOR
 ==============
 - sometimes 500s or times out when loading a scroll
 - save draft prompt if it's not published or saved
+- delete options like api key on plugin deletion
 
 TODO
 ====

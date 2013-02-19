@@ -159,7 +159,7 @@ EOT;
 				}
 				$scroll_id = $matches[2];
 
-				$this->load_scroll($post_id, $skid);
+				$this->load_scroll($post_id, $scroll_id);
 
 				break;
 			case 'deactivate':
