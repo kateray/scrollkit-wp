@@ -106,18 +106,22 @@ EOT;
 		// deal with special scroll action calls - scrollkit will make these
 		// when a user hits 'done' on scroll kit
 		$scrollkit_param = get_query_var('scrollkit');
+
 		if ( !empty($scrollkit_param) ) {
 			$this->handle_scroll_action();
-			wp_safe_redirect( get_edit_post_link( $post_id, '' ) );
+			wp_safe_redirect( get_edit_post_link( get_query_var('p'), '' ) );
 			exit;
 		}
 
 		// if it's not a single post, don't render it as a scroll
-		if ( !is_singular() )
+		if ( !is_singular() ){
 			return;
+		}
+
+
+		$post_id = get_the_ID();
 
 		// if the meta is set, call our template filter that renders a scroll
-		$post_id = get_queried_object_id();
 		if ( get_post_meta( $post_id, '_scroll_state', true ) === 'active' ) {
 			remove_filter( 'the_content', 'wpautop' );
 			add_filter( 'template_include', array( $this, 'load_template' ), 100 );
@@ -130,7 +134,7 @@ EOT;
 	 */
 	function handle_scroll_action() {
 		$method = get_query_var('scrollkit');
-		$post_id = get_queried_object_id();
+		$post_id = get_query_var('p');
 
 		switch ( $method ) {
 			case 'update':
@@ -272,7 +276,7 @@ EOT;
 				update_post_meta($post_ID, '_scroll_state', 'active');
 				return;
 			case 'none':
-				$this->convert_post();
+				$this->convert_post($post_ID);
 				return;
 		}
 	}
@@ -290,7 +294,7 @@ EOT;
 		$data = array();
 		$data['title'] = get_the_title($post_id);
 		$data['cms_id'] = $post_id;
-		$data['cms_url'] = get_bloginfo('url') . '?scrollkit=update';
+		$data['cms_url'] = get_bloginfo('url'); // . '?scrollkit=update';
 		$data['api_key'] = $api_key;
 		$data['scroll_id'] = $scroll_id;
 
@@ -332,8 +336,7 @@ EOT;
 	/**
 	 * Converts a wordpress post into a scroll
 	 */
-	function convert_post() {
-		$post_id = get_queried_object_id();
+	function convert_post($post_id) {
 		$post = get_post($post_id);
 
 		// fetch the user entered api key from plugin's settings
@@ -347,7 +350,7 @@ EOT;
 		$content = str_replace(PHP_EOL, '<br />&nbsp;', $content);
 		$data['content'] = $content;
 		$data['cms_id'] = $post_id;
-		$data['cms_url'] = get_bloginfo('url') . '?scrollkit=update';
+		$data['cms_url'] = get_bloginfo('url'); // . '?scrollkit=update';
 		$data['api_key'] = $api_key;
 
 		$this->request_new_scroll($data, $post_id);

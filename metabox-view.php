@@ -43,7 +43,7 @@ switch($state){
 
 <a href="#TB_inline?height=155&width=300&inlineId=sk-load-scroll"
 	class="button thickbox js-sk-disable-on-dirty">
-	Load Existing Scroll
+	Duplicate Existing Scroll
 </a>
 <?php else: ?>
 
@@ -75,6 +75,10 @@ switch($state){
 </a>
 <?php endif ?>
 
+<div class="js-sk-enable-on-dirty" style="visibility: hidden;">
+	<p>Save this post to activate Scroll Kit features</p>
+</div>
+
 <?php if (WP_DEBUG === true): ?>
 <pre>
 DEBUG
@@ -86,9 +90,14 @@ _scroll_state: <?php echo get_post_meta( $post->ID, '_scroll_state', true ); ?>
 
 <script>
 	(function(){
-		var $ = jQuery;
+		var $ = jQuery
+			, postStatus = "<?php echo get_post_status() ?>";
 
-		window.isPostDirty = function(){
+		isPostDirty = function(){
+			debugger
+			if (postStatus === 'auto-draft')
+				return true;
+
 			var mce = typeof(tinymce) != 'undefined' ? tinymce.activeEditor : false, title, content;
 
 			if ( mce && !mce.isHidden() ) {
@@ -109,15 +118,19 @@ _scroll_state: <?php echo get_post_meta( $post->ID, '_scroll_state', true ); ?>
 		var disableIfDirty = function() {
 			if ( isPostDirty() ) {
 				$('.js-sk-disable-on-dirty').addClass('button-disabled');
+				$('.js-sk-enable-on-dirty').css('visibility', 'visible');
 			}
 		}
 
 		$('#title, #content').on('keydown', disableIfDirty);
 
-		// BROKEN
+		// hook into the tiny mce iframe's iframe that lives within
+		// #content_ifr
 		$(window).load(function() {
 			$('#content_ifr').contents().on('keydown', disableIfDirty);
 		});
+
+		disableIfDirty();
 
 	})();
 </script>
