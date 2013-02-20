@@ -183,6 +183,7 @@ EOT;
 
 		if ( empty( $options['scrollkit_api_key'] )
 				|| $api_key !== $options['scrollkit_api_key'] ) {
+			// TODO check for native wordpress ways of doing this
 			header('HTTP/1.0 401 Unauthorized');
 			echo 'invalid api key';
 			exit;
