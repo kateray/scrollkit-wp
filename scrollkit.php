@@ -208,9 +208,6 @@ EOT;
 			wp_die( $results->get_error_message() );
 		}
 
-		//echo $content_url;
-		//die();
-
 		$response_code = $results['response']['code'];
 		if ( $response_code !== 200 ) {
 			wp_die( "error requesting content from $content_url, error code  "
