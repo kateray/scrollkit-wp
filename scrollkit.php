@@ -130,7 +130,7 @@ EOT;
 	 */
 	function handle_scroll_action() {
 		$method = get_query_var('scrollkit');
-		$post_id = get_query_var('p');
+		$post_id = get_queried_object_id();
 
 		switch ( $method ) {
 			case 'update':
@@ -333,7 +333,7 @@ EOT;
 	 * Converts a wordpress post into a scroll
 	 */
 	function convert_post() {
-		$post_id = get_query_var('p');
+		$post_id = get_queried_object_id();
 		$post = get_post($post_id);
 
 		// fetch the user entered api key from plugin's settings
@@ -503,7 +503,7 @@ EOT;
 			return;
 		?>
 		<div id="sk-load-scroll" style="display:none">
-			<h2>Load Existing Scroll</h2>
+			<h2>Duplicate Existing Scroll</h2>
 			<form method="GET" action="<?php bloginfo('url') ?>">
 				<input type="hidden" name="scrollkit" value="load" />
 				<input type="hidden" name="p" value="<?php the_ID() ?>" />
