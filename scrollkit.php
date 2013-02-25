@@ -79,7 +79,7 @@ EOT;
 	 * Adds a menu page that's accessible from the settings category in wp-admin
 	 */
 	function scroll_wp_add_options_page() {
-		add_options_page( 'Scroll Kit WP', 'Scroll Kit WP', 'manage_options',
+		add_options_page( 'Scroll Kit', 'Scroll Kit', 'manage_options',
 				__FILE__, array( $this, 'scroll_wp_render_form' ) );
 	}
 
@@ -144,19 +144,16 @@ EOT;
 		}
 
 		if ( empty( $post_id ) ) {
-			$this->log_error_and_die( 'empty post id' );
+			$this->log_error_and_die( 'No post id provided' );
 		}
 
 		if ( empty( $method ) ) {
-			$this->log_error_and_die( 'empty method' );
+			$this->log_error_and_die( 'No method provided' );
 		}
 
 		switch ( $method ) {
 			case 'update':
 				$this->update_sk_post( $post_id );
-
-				// don't like this
-				header( 'Content-Type:' );
 				exit;
 			case 'activate':
 				$this->activate_post($post_id);
@@ -443,7 +440,7 @@ EOT;
 				// probably a 500 error
 				wp_die("Scroll Kit had an unexpected error, please contact"
 						. " hey@scrollkit.com if this continues to happen",
-						"Error with Scroll Kit WP");
+						"Error with Scroll Kit");
 		}
 
 		$response_body = json_decode( $response['body'], true );
