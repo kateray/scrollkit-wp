@@ -134,8 +134,10 @@ EOT;
 	 * edit view
 	 */
 	function handle_scroll_action() {
-		$method = get_query_var( 'scrollkit' );
 
+		$this->authenticate_request();
+
+		$method = get_query_var( 'scrollkit' );
 		$post_id = get_queried_object_id();
 		if ( empty( $post_id) ) {
 			$post_id = get_query_var( 'p' );
@@ -151,7 +153,6 @@ EOT;
 
 		switch ( $method ) {
 			case 'update':
-				$this->validate_api_key();
 				$this->update_sk_post( $post_id );
 
 				// don't like this
@@ -197,14 +198,24 @@ EOT;
 	 * if it doesn't match, a 401 error is produced and errors are logged
 	 * to the plugin's option table
 	 */
-	function validate_api_key() {
+	function is_api_key_valid() {
 		$api_key = isset($_GET['key']) ? $_GET['key'] : null;
 
 		$options = get_option( 'scroll_wp_options' );
 
 		if ( empty( $options['scrollkit_api_key'] )
 				|| $api_key !== $options['scrollkit_api_key'] ) {
+			return false;
+		}
+		return true;
+	}
 
+	/**
+	 * Checks if an admin is signed in or if the correct sk api key is provided
+	 * kills the request if neither of those conditions or met
+	 */
+	function authenticate_request() {
+		if ( !current_user_can( 'edit_posts' ) && !$this->is_api_key_valid()) {
 			$this->log_error_and_die( 'Invalid API Key', 401 );
 		}
 	}
