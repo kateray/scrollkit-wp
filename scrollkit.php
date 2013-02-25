@@ -45,7 +45,6 @@ class Scroll {
 		add_filter( 'plugin_action_links',
 				array( $this, 'scroll_wp_action_links' ), 10, 2 );
 
-		// TODO test this
 		register_uninstall_hook( __FILE__,
 				array( 'Scroll', 'scroll_wp_delete_plugin_options' ) );
 
@@ -130,8 +129,8 @@ EOT;
 	}
 
 	/**
-	 * Handle actions to scrolls, redirecting the user back to the post
-	 * edit view
+	 * Handles all requests that manipulate scroll data
+	 * e.g. update, deactive, activate, delete
 	 */
 	function handle_scroll_action() {
 
@@ -178,11 +177,9 @@ EOT;
 
 				break;
 			case 'deactivate':
-				// TODO XXX check if logged in!
 				$this->deactivate_post($post_id);
 				break;
 			case 'delete':
-				// TODO XXX check if logged in!
 				$this->delete_post($post_id);
 				break;
 		}
@@ -275,6 +272,8 @@ EOT;
 		update_post_meta( $post_id, '_scroll_fonts', $data->fonts );
 		update_post_meta( $post_id, '_scroll_js',  $data->js );
 
+		// trigger update to invalidate cache
+		wp_update_post( array( 'ID' => $post_id ) );
 	}
 
 	/**
@@ -531,7 +530,6 @@ EOT;
 	function scroll_wp_render_form() {
 		include( dirname( __FILE__ ) . '/settings-view.php');
 	}
-
 
 	/**
 	 * Adds a hidden modal after the editor stuff

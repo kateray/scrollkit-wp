@@ -4,18 +4,14 @@ TODO
 ====
 
 - CHECK ALL REQUESTS AND MAKE SURE THEY ARE AUTHENTICATED
-- sometimes you cannot delete a scroll from a post
 - sometimes 500s or times out when loading a scroll
 - save draft prompt if it's not published or saved
 - make request flows more sane (less exit statements 3 method calls in)
-- work with user's caches (i.e. trigger a post 'update' or something)
 
 - figure out how to kill the connection after getting pinged and then keep
   doing work
 - handle the case where a user deletes the post on scrollkit
 - images (and other media) that could be in a wordpress post
-- handle case where api key has been updated on wordpress' side, but the
-  user is editing an existing post
 - deal w/ old versions of WP
 
 SK SIDE:

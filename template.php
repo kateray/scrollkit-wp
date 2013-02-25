@@ -1,7 +1,7 @@
 <?php
 
 	/**
-	 * Ghetto template rendering
+	 * minimal template rendering with variables between {{ mustaches }}
 	 */
 	function render_template($data, $template){
 		$rendered = $template;
