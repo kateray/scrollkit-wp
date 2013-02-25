@@ -276,13 +276,6 @@ EOT;
 	}
 
 	/**
-	 * Get the path to this plugin's settings view
-	 */
-	function get_settings_url() {
-		return get_admin_url() . "options-general.php?page=" . SCROLL_WP_BASENAME;
-	}
-
-	/**
 	 * Add the Scroll metabox to the post view so users can convert a post to a
 	 * scroll
 	 */
@@ -422,8 +415,7 @@ EOT;
 			case 422:
 				// api key error, redirect the user to this plugin's setting page
 				// where there's a message indicating an api key issue
-				$destination = add_query_arg('api-key-error', 'true',
-						$this->get_settings_url());
+				$destination = add_query_arg('api-key-error', 'true', SCROLL_WP_SETTINGS_URL);
 
 				wp_safe_redirect($destination);
 				exit;
@@ -478,7 +470,7 @@ EOT;
 
 		if ( $file == plugin_basename( __FILE__ ) ) {
 			$settings_link = '<a href="'
-					. $this->get_settings_url()
+					. SCROLL_WP_SETTINGS_URL
 				  . '">'
 					. __('Settings')
 					. '</a>';
