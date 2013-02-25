@@ -137,9 +137,16 @@ EOT;
 		$method = get_query_var( 'scrollkit' );
 
 		$post_id = get_queried_object_id();
+		if ( empty( $post_id) ) {
+			$post_id = get_query_var( 'p' );
+		}
 
-		if ( empty( $post_id ) || empty ( $method ) ) {
-			$this->log_error_and_die( 'empty post id or method' );
+		if ( empty( $post_id ) ) {
+			$this->log_error_and_die( 'empty post id' );
+		}
+
+		if ( empty( $method ) ) {
+			$this->log_error_and_die( 'empty method' );
 		}
 
 		switch ( $method ) {
@@ -173,9 +180,11 @@ EOT;
 
 				break;
 			case 'deactivate':
+				// TODO XXX check if logged in!
 				$this->deactivate_post($post_id);
 				break;
 			case 'delete':
+				// TODO XXX check if logged in!
 				$this->delete_post($post_id);
 				break;
 		}
