@@ -1,7 +1,4 @@
 <?php
-	// hi
-	//
-
 
 	$options = get_option( 'scroll_wp_options' );
 
@@ -30,6 +27,18 @@
 
 	<form method="post" action="options.php">
 		<?php settings_fields( 'scroll_wp_plugin_options' ) ?>
+
+		<?php //TODO make this more pretty, and with support links ?>
+
+		<ul class="sk-errors">
+			<?php if ( array_key_exists( 'errors', $options ) ): ?>
+			<?php foreach ( $options['errors'] as $error ): ?>
+
+			<li><?php echo $error ?></li>
+
+			<?php endforeach ?>
+			<?php endif ?>
+		</ul>
 
 		<table class="form-table">
 			<tr>

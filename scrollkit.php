@@ -23,6 +23,7 @@ if ( defined('SK_DEBUG_URL') ) {
 }
 
 define( 'SCROLL_WP_API', SCROLL_WP_SK_URL . 'api/' );
+define( 'SCROLL_WP_SETTINGS_URL', get_admin_url() . "options-general.php?page=" . SCROLL_WP_BASENAME );
 
 
 class Scroll {
@@ -109,7 +110,7 @@ EOT;
 
 		if ( !empty($scrollkit_param) ) {
 			$this->handle_scroll_action();
-			wp_safe_redirect( get_edit_post_link( get_query_var('p'), '' ) );
+			wp_safe_redirect( get_edit_post_link( get_queried_object_id(), '' ) );
 			exit;
 		}
 
@@ -133,8 +134,13 @@ EOT;
 	 * edit view
 	 */
 	function handle_scroll_action() {
-		$method = get_query_var('scrollkit');
-		$post_id = get_query_var('p');
+		$method = get_query_var( 'scrollkit' );
+
+		$post_id = get_queried_object_id();
+
+		if ( empty( $post_id ) || empty ( $method ) ) {
+			$this->log_error_and_die( 'empty post id or method' );
+		}
 
 		switch ( $method ) {
 			case 'update':
@@ -175,20 +181,49 @@ EOT;
 		}
 	}
 
+	/**
+	 * Ensures a GET variable 'key' exists and matches the api key
+	 * in the DB
+	 *
+	 * if it doesn't match, a 401 error is produced and errors are logged
+	 * to the plugin's option table
+	 */
 	function validate_api_key() {
-		// 401 if the api key doesn't match
 		$api_key = isset($_GET['key']) ? $_GET['key'] : null;
 
 		$options = get_option( 'scroll_wp_options' );
 
 		if ( empty( $options['scrollkit_api_key'] )
 				|| $api_key !== $options['scrollkit_api_key'] ) {
-			// TODO check for native wordpress ways of doing this
-			header('HTTP/1.0 401 Unauthorized');
-			echo 'invalid api key';
-			exit;
+
+			$this->log_error_and_die( 'Invalid API Key', 401 );
 		}
 	}
+
+	/**
+	 * Logs an error to our plugin's option table
+	 */
+	function log_error($error_message) {
+		$options = get_option( 'scroll_wp_options' );
+		$errors = array();
+
+		if ( array_key_exists( 'errors', $options ) ) {
+			$errors = $options['errors'];
+		}
+
+		$errors[] = $error_message;
+
+		$options['errors'] = $errors;
+
+		update_option( 'scroll_wp_options', $options );
+	}
+
+	function log_error_and_die($message, $http_response_code = 500) {
+		$this->log_error( $message );
+
+		wp_die( $message, '', array('response' => $http_response_code ) );
+	}
+
 
 	/**
 	 * Updates wordpress' copy of a scroll post by fetching the data from
@@ -202,21 +237,18 @@ EOT;
 		$content_url = $this->build_content_url($scroll_id);
 
 		if ( empty( $post ) || empty( $content_url ) ) {
-			// TODO make this less shitty
-			wp_die('there is a problem');
+			$this->log_error_and_die( 'Empty post or content URL' );
 		}
-
 
 		$results = wp_remote_get( $content_url );
 
 		if ( is_wp_error( $results) ) {
-			wp_die( $results->get_error_message() );
+			$this->log_error_and_die( $results->get_error_message() );
 		}
 
 		$response_code = $results['response']['code'];
 		if ( $response_code !== 200 ) {
-			wp_die( "error requesting content from $content_url, error code  "
-					. $response_code );
+			$this->log_error_and_die( "error requesting content from $content_url, error code  " . $response_code );
 		}
 
 		$data = json_decode( $results['body'] );
@@ -325,13 +357,13 @@ EOT;
 	/**
 	 * Removes all scrollkit data associated with a post
 	 */
-	function delete_post($post_ID) {
-		delete_post_meta($post_ID, '_scroll_id');
-		delete_post_meta($post_ID, '_scroll_state');
-		delete_post_meta($post_ID, '_scroll_content');
-		delete_post_meta($post_ID, '_scroll_css');
-		delete_post_meta($post_ID, '_scroll_fonts');
-		delete_post_meta($post_ID, '_scroll_js');
+	function delete_post($post_id) {
+		delete_post_meta($post_id, '_scroll_id');
+		delete_post_meta($post_id, '_scroll_state');
+		delete_post_meta($post_id, '_scroll_content');
+		delete_post_meta($post_id, '_scroll_css');
+		delete_post_meta($post_id, '_scroll_fonts');
+		delete_post_meta($post_id, '_scroll_js');
 	}
 
 	/**
@@ -412,7 +444,6 @@ EOT;
 		update_post_meta($post_id, '_scroll_css', array());
 		update_post_meta($post_id, '_scroll_fonts', '');
 		update_post_meta($post_id, '_scroll_js', array());
-
 	}
 
 	/**
@@ -507,7 +538,7 @@ EOT;
 			return;
 		?>
 		<div id="sk-load-scroll" style="display:none">
-			<h2>Duplicate Existing Scroll</h2>
+			<h2>Copy Existing Scroll</h2>
 			<form method="GET" action="<?php bloginfo('url') ?>">
 				<input type="hidden" name="scrollkit" value="load" />
 				<input type="hidden" name="p" value="<?php the_ID() ?>" />

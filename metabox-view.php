@@ -6,6 +6,8 @@ $scrollkit_id = get_post_meta( $post->ID, '_scroll_id', true );
 
 $state = get_post_meta( $post->ID, '_scroll_state', true );
 
+// TODO message if api
+
 // different text based on scroll state
 $copy = array();
 
@@ -26,6 +28,14 @@ switch($state){
 
 <h4><?php echo $copy['heading'] ?></h4>
 
+<?php if ( array_key_exists( 'errors', $options ) ): ?>
+<p>
+	<?php // TODO copy ?>
+	Errors detected, visit
+	<a href="<?php echo SCROLL_WP_SETTINGS_URL ?>">settings</a>
+</p>
+<?php endif ?>
+
 <?php if (!empty($scrollkit_id)): ?>
 <a href="<?php echo $this->build_edit_url($scrollkit_id) ?>"
 		target="_blank"
@@ -43,7 +53,7 @@ switch($state){
 
 <a href="#TB_inline?height=155&width=300&inlineId=sk-load-scroll"
 	class="button thickbox js-sk-disable-on-dirty">
-	Duplicate Existing Scroll
+	Copy Existing Scroll
 </a>
 <?php else: ?>
 
@@ -75,7 +85,7 @@ switch($state){
 </a>
 <?php endif ?>
 
-<div class="js-sk-enable-on-dirty" style="visibility: hidden;">
+<div class="js-sk-enable-on-dirty" style="visibility: hidden; color: #a00">
 	<p>Save this post to activate Scroll Kit features</p>
 </div>
 
