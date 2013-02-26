@@ -202,7 +202,7 @@ class ScrollKit {
 		switch ( $method ) {
 
 			// scrollkit.com calls this when a user hits 'done'
-			// not redirect needed
+			// exit before unneeded redirect
 			case 'update':
 				$this->update_scroll_post( $post_id );
 				exit;
@@ -216,7 +216,6 @@ class ScrollKit {
 			// a user can pass in a scrollkit URL so scrollkit knows to create a
 			// copy of an existing scroll
 			case 'load':
-				// forking a scroll, figure out what scrollkit id they want
 				$skid = isset( $_GET['skid'] ) ? $_GET['skid'] : '';
 				$scroll_id = ScrollKit::parse_scroll_id($skid);
 
@@ -244,11 +243,7 @@ class ScrollKit {
 	}
 
 	/**
-	 * Ensures a GET variable 'key' exists and matches the api key
-	 * in the DB
-	 *
-	 * if it doesn't match, a 401 error is produced and errors are logged
-	 * to the plugin's option table
+	 * Checks if there's a valid api key in a request
 	 */
 	private function is_api_key_valid() {
 		$api_key = isset( $_GET['key'] ) ? $_GET['key'] : null;
@@ -263,8 +258,8 @@ class ScrollKit {
 	}
 
 	/**
-	 * Checks if an admin is signed in or if the correct sk api key is provided
-	 * kills the request if neither of those conditions or met
+	 * Makes sure the user is an admin or the correct api key is provided
+	 * If not, the request is killed with an error message
 	 */
 	private function authenticate_request() {
 		if ( !current_user_can( 'edit_posts' ) && !$this->is_api_key_valid()) {
@@ -290,6 +285,9 @@ class ScrollKit {
 		update_option( 'scroll_wp_options', $options );
 	}
 
+	/**
+	 * Log an error to the DB and kill the connection
+	 */
 	private function log_error_and_die( $message, $http_response_code = 500 ) {
 		$this->log_error( $message );
 		wp_die( $message, '', array('response' => $http_response_code ) );
@@ -302,8 +300,8 @@ class ScrollKit {
 	private function update_scroll_post( $post_id ) {
 		$scroll_id = get_post_meta( $post_id, '_scroll_id', true );
 
-		$content_url = ScrollKit::build_content_url( $scroll_id );
 		// fetch data from scroll kit
+		$content_url = ScrollKit::build_content_url( $scroll_id );
 		$results = wp_remote_get( $content_url );
 
 		if ( is_wp_error( $results) ) {
@@ -322,7 +320,7 @@ class ScrollKit {
 		update_post_meta( $post_id, '_scroll_fonts', $data->fonts );
 		update_post_meta( $post_id, '_scroll_js',  $data->js );
 
-		// trigger update to invalidate cache
+		// trigger update incase the user has a cache
 		wp_update_post( array( 'ID' => $post_id ) );
 	}
 
@@ -534,6 +532,9 @@ class ScrollKit {
 		return SCROLL_WP_SK_URL . "s/$scrollkit_id/content";
 	}
 
+	/**
+	 * Default values for the html header on a scroll post
+	 */
 	public static function template_header_default() {
 
 		$blog_title = get_bloginfo( 'name' );
@@ -550,6 +551,9 @@ class ScrollKit {
 EOT;
 	}
 
+	/**
+	 * Default values for the html footer on a scroll post
+	 */
 	public static function template_footer_default() {
 		return <<<EOT
 		</div>
