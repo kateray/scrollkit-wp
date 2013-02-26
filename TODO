@@ -3,6 +3,7 @@
 TODO
 ====
 
+- try installing on a fresh wp 
 - CHECK ALL REQUESTS AND MAKE SURE THEY ARE AUTHENTICATED
 - sometimes 500s or times out when loading a scroll
 - save draft prompt if it's not published or saved

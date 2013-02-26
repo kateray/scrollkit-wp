@@ -48,7 +48,7 @@
 			<tr>
 				<th scope="row">Scroll Kit API Key</th>
 				<td>
-					<input type="text" size="57" name="scroll_wp_options[scrollkit_api_key]" value="<?php echo sanitize_text_field($options['scrollkit_api_key']); ?>" />
+					<input type="text" size="57" name="scroll_wp_options[scrollkit_api_key]" value="<?php echo sanitize_text_field($options['scrollkit_api_key']); ?>" autocomplete="off" />
 					<br>
 				  <a href="https://www.scrollkit.com/api/wp" target="_blank">Get an api key</a>
 				</td>
@@ -89,13 +89,19 @@
 </div>
 <script>
 	(function(){
-		document.getElementById("scroll-header-default").onclick = function() {
-			var headerInput = document.getElementById("header-input");
-			headerInput.innerHTML = <?php echo json_encode($this->template_header_default) ?>;
-		}
-		document.getElementById("scroll-footer-default").onclick = function() {
-			var footerInput = document.getElementById("footer-input");
-			footerInput.innerHTML = <?php echo json_encode($this->template_footer_default) ?>;
-		}
+		$ = jQuery;
+
+		$('#scroll-header-default').on('click', function(){
+			$("#header-input").val(
+				<?php echo json_encode(ScrollKit::template_header_default() ) ?>
+			);
+		});
+
+		$('#scroll-footer-default').on('click', function(){
+			$("#footer-input").val(
+				<?php echo json_encode(ScrollKit::template_footer_default() ) ?>
+			);
+		});
+
 	})();
 </script>

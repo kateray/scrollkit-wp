@@ -1,14 +1,12 @@
 <?php
 
-global $post;
+
 $options = get_option( 'scroll_wp_options' );
-$scrollkit_id = get_post_meta( $post->ID, '_scroll_id', true );
+$scrollkit_id = get_post_meta( get_the_ID(), '_scroll_id', true );
 
-$state = get_post_meta( $post->ID, '_scroll_state', true );
+$state = get_post_meta( get_the_ID(), '_scroll_state', true );
 
-// TODO message if api
 
-// different text based on scroll state
 $copy = array();
 
 switch($state){
@@ -37,7 +35,7 @@ switch($state){
 <?php endif ?>
 
 <?php if (!empty($scrollkit_id)): ?>
-<a href="<?php echo $this->build_edit_url($scrollkit_id) ?>"
+<a href="<?php echo ScrollKit::build_edit_url( $scrollkit_id ) ?>"
 		target="_blank"
 		class="button">
 	Edit
@@ -45,11 +43,10 @@ switch($state){
 <?php endif; ?>
 
 <?php if( $state !== 'active' ): ?>
-<a href="<?php bloginfo('url') ?>/?scrollkit=activate&p=<?php echo $post->ID ?>"
+<a href="<?php bloginfo('url') ?>/?scrollkit=activate&p=<?php the_ID() ?>"
 		class="button js-sk-disable-on-dirty">
 	<?php echo $copy['activate'] ?>
 </a>
-
 
 <a href="#TB_inline?height=155&width=300&inlineId=sk-load-scroll"
 	class="button thickbox js-sk-disable-on-dirty">
@@ -60,7 +57,7 @@ switch($state){
 <div class="updated">
 	<p>
 		This post is a scroll.
-		<a href="<?php echo $this->build_edit_url($scrollkit_id) ?>" target="_blank">
+		<a href="<?php echo ScrollKit::build_edit_url( $scrollkit_id ) ?>" target="_blank">
 			Edit this post with Scroll Kit
 		</a>
 	</p>
@@ -69,7 +66,7 @@ switch($state){
 <?php endif ?>
 
 <?php if ( $state === 'active' ): ?>
-<a href="<?php bloginfo('url') ?>/?scrollkit=deactivate&p=<?php echo $post->ID ?>"
+<a href="<?php bloginfo('url') ?>/?scrollkit=deactivate&p=<?php the_ID() ?>"
 		title="Turn this back into a normal wordpress post"
 		class="button js-sk-disable-on-dirty">
 	Dectivate
@@ -77,7 +74,7 @@ switch($state){
 <?php endif ?>
 
 <?php if ( !empty( $state ) ): ?>
-<a href="<?php bloginfo('url') ?>/?scrollkit=delete&p=<?php echo $post->ID ?>"
+<a href="<?php bloginfo('url') ?>/?scrollkit=delete&p=<?php the_ID() ?>"
 		onclick="return confirm('This will permanently delete the scroll associated with this post, are you sure you want to delete it?');"
 		title="Permanently deletes the scroll associated with this post"
 		class="button js-sk-disable-on-dirty">
@@ -92,9 +89,9 @@ switch($state){
 <?php if (WP_DEBUG === true): ?>
 <pre>
 DEBUG
-_scroll_id: <?php echo get_post_meta( $post->ID, '_scroll_id', true ); ?>
+_scroll_id: <?php echo get_post_meta( get_the_ID(), '_scroll_id', true ); ?>
 
-_scroll_state: <?php echo get_post_meta( $post->ID, '_scroll_state', true ); ?>
+_scroll_state: <?php echo get_post_meta( get_the_ID(), '_scroll_state', true ); ?>
 </pre>
 <?php endif ?>
 
@@ -104,7 +101,6 @@ _scroll_state: <?php echo get_post_meta( $post->ID, '_scroll_state', true ); ?>
 			, postStatus = "<?php echo get_post_status() ?>";
 
 		isPostDirty = function(){
-			debugger
 			if (postStatus === 'auto-draft')
 				return true;
 
