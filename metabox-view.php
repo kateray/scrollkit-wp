@@ -43,7 +43,7 @@ switch($state){
 <?php endif; ?>
 
 <?php if( $state !== 'active' ): ?>
-<a href="<?php bloginfo('url') ?>/?scrollkit=activate&p=<?php the_ID() ?>"
+<a href="<?php bloginfo('url') ?>/?scrollkit=activate&scrollkit_cms_id=<?php the_ID() ?>"
 		class="button js-sk-disable-on-dirty">
 	<?php echo $copy['activate'] ?>
 </a>
@@ -66,7 +66,7 @@ switch($state){
 <?php endif ?>
 
 <?php if ( $state === 'active' ): ?>
-<a href="<?php bloginfo('url') ?>/?scrollkit=deactivate&p=<?php the_ID() ?>"
+<a href="<?php bloginfo('url') ?>/?scrollkit=deactivate&scrollkit_cms_id=<?php the_ID() ?>"
 		title="Turn this back into a normal wordpress post"
 		class="button js-sk-disable-on-dirty">
 	Dectivate
@@ -74,7 +74,7 @@ switch($state){
 <?php endif ?>
 
 <?php if ( !empty( $state ) ): ?>
-<a href="<?php bloginfo('url') ?>/?scrollkit=delete&p=<?php the_ID() ?>"
+<a href="<?php bloginfo('url') ?>/?scrollkit=delete&scrollkit_cms_id=<?php the_ID() ?>"
 		onclick="return confirm('This will permanently delete the scroll associated with this post, are you sure you want to delete it?');"
 		title="Permanently deletes the scroll associated with this post"
 		class="button js-sk-disable-on-dirty">

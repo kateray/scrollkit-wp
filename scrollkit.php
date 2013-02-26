@@ -4,7 +4,7 @@ Plugin Name: Scroll Kit
 Plugin URI: http://scrollkit.com
 Description: Adds a button to send a page's content to the scroll kit design interface, which generates custom html and css that override the page's default template.
 Version: 0.1
-Author: scroll kit
+Author: Scroll Kit
 Author URI: http://scrollkit.com
 License: GPL2
 */
@@ -36,6 +36,7 @@ class ScrollKit {
 		add_filter( 'plugin_action_links'  , array( $this, 'filter_plugin_action_links' ), 10, 2 );
 
 		register_activation_hook( __FILE__ , array( $this, 'hook_add_defaults' ));
+
 		register_uninstall_hook( __FILE__  , array( 'Scroll', 'hook_delete_plugin_options' ) );
 	}
 
@@ -92,23 +93,23 @@ class ScrollKit {
 	}
 
 	/**
-	 * Adds scrollkit to the list of query variables that wordpress pays attention to
+	 * Adds scrollkit to the list of query variables that wordpress pays
+	 * attention to
 	 */
 	public function filter_query_vars( $wp_vars ) {
 		$wp_vars[] = 'scrollkit';
+		$wp_vars[] = 'scrollkit_cms_id';
 		return $wp_vars;
 	}
 
 	/**
 	 * Adds a hidden modal after the editor stuff
 	 *
-	 * note:
-	 * modal's are crappy, and it would make more sense to have this in
-	 * in metabox-view.php, except the metabox stuff is inside a <form> making it
-	 * impossible to nest a second form without using js or something ugly.
+	 * TODO consider using ajax requests within the metabox instead
+	 *
 	 */
 	public function filter_admin_footer() {
-		global $pagenow, $typenow, $post;
+		global $pagenow;
 
 		// only load this in a post editing context
 		if ( !in_array( $pagenow, array( 'post.php', 'post-new.php' ) ) ) {
@@ -116,16 +117,16 @@ class ScrollKit {
 		}
 
 		?>
-		<div id="sk-load-scroll" style="display:none">
-			<h2>Copy Existing Scroll</h2>
-			<form method="GET" action="<?php bloginfo('url') ?>">
-				<input type="hidden" name="scrollkit" value="load" />
-				<input type="hidden" name="p" value="<?php the_ID() ?>" />
-				<input name="skid" placeholder="http://www.scrollkit.com/s/f0Z9WbS/" size="30" />
-				<input type="submit" value="Load Scroll" />
-			</form>
-		</div>
-	<?php
+			<div id="sk-load-scroll" style="display:none">
+				<h2>Copy Existing Scroll</h2>
+				<form method="GET" action="<?php bloginfo('url') ?>">
+					<input type="hidden" name="scrollkit" value="load" />
+					<input type="hidden" name="scrollkit_cms_id" value="<?php the_ID() ?>" />
+					<input name="skid" placeholder="http://www.scrollkit.com/s/f0Z9WbS/" size="30" />
+					<input type="submit" value="Load Scroll" />
+				</form>
+			</div>
+		<?php
 	}
 
 	/**
@@ -152,8 +153,8 @@ class ScrollKit {
 
 			$arr = array(
 				"scrollkit_api_key" => "",
-				"template_header" => ScrollKit::template_header_default(),
-				"template_footer" => ScrollKit::template_footer_default()
+				"template_header"   => ScrollKit::template_header_default(),
+				"template_footer"   => ScrollKit::template_footer_default()
 			);
 
 			update_option( 'scroll_wp_options', $arr );
@@ -163,18 +164,17 @@ class ScrollKit {
 	/**
 	 * Delete options table entries when plugin deactivated AND deleted
 	 *
-	 * note that this doesn't remove metadata associated with posts
+	 * Note: this doesn't remove metadata associated with existing scroll posts
 	 */
 	public static function hook_delete_plugin_options() {
 		delete_option( 'scroll_wp_options' );
 	}
 
-
 	/**
-	 * Functionality the user to send content to scroll
+	 * Loads our metabox for user controls like 'Convert to Scroll' etc
 	 */
 	public static function metabox() {
-		include( dirname( __FILE__ ) . '/metabox-view.php' );
+		@include dirname( __FILE__ ) . '/metabox-view.php';
 	}
 
 	/**
@@ -185,54 +185,61 @@ class ScrollKit {
 
 		$this->authenticate_request();
 
-		$post_id = get_queried_object_id();
-		if ( empty( $post_id) ) {
-			$post_id = get_query_var( 'p' );
-		}
+		$post_id = get_query_var( 'scrollkit_cms_id' );
 
 		if ( empty( $post_id ) ) {
 			$this->log_error_and_die( 'No post id provided' );
 		}
 
+		if ( !get_post( $post_id ) ){
+			$this->log_error_and_die( "Scroll Kit is trying to update a post that doesn't exist" );
+		}
+
 		if ( empty( $method ) ) {
-			$this->log_error_and_die( 'No method provided' );
+			$this->log_error_and_die( 'No Scroll Kit method provided' );
 		}
 
 		switch ( $method ) {
+
+			// scrollkit.com calls this when a user hits 'done'
+			// not redirect needed
 			case 'update':
-				$this->update_sk_post( $post_id );
+				$this->update_scroll_post( $post_id );
 				exit;
+
+			// a user can activate a non-scroll post, or a scroll post that is
+			// deactivated
 			case 'activate':
 				$this->activate_post( $post_id );
 				break;
+
+			// a user can pass in a scrollkit URL so scrollkit knows to create a
+			// copy of an existing scroll
 			case 'load':
 				// forking a scroll, figure out what scrollkit id they want
-
 				$skid = isset( $_GET['skid'] ) ? $_GET['skid'] : '';
+				$scroll_id = ScrollKit::parse_scroll_id($skid);
 
-				// Some people, when confronted with a problem, think
-				// “I know, I'll use regular expressions.”
-				// Now they have found true <3<3<3<3<3<3
-				$pattern = '/\s*(https?:\/\/.*\/s\/)?([a-zA-Z0-9]+).*$/';
-
-				$is_match = preg_match( $pattern, $skid, $matches );
-				if ( $is_match !== 1 || count( $matches ) < 3 ) {
-					wp_die( 'There was an issue scrollkit URL or ID you provided' );
+				if ($scroll_id === null) {
+					wp_die( 'There was an error with the scrollkit URL or ID provided' );
 				}
-				$scroll_id = $matches[2];
 
 				$this->load_scroll( $post_id, $scroll_id );
-
 				break;
+
+			// a user can deactive a scroll so the normal post is served
 			case 'deactivate':
 				$this->deactivate_post( $post_id );
 				break;
+
+			// a user can delete all scroll kit metadata associated with a post
+			// note: it doesn't delete the scroll on scrollkit.com
 			case 'delete':
 				$this->delete_post( $post_id );
 				break;
 		}
 
-		wp_safe_redirect( get_edit_post_link( get_queried_object_id(), '' ) );
+		wp_safe_redirect( get_edit_post_link( $post_id, '' ) );
 		exit;
 	}
 
@@ -292,17 +299,11 @@ class ScrollKit {
 	 * Updates wordpress' copy of a scroll post by fetching the data from
 	 * scrollkit
 	 */
-	private function update_sk_post( $post_id ) {
-
-		$post = get_post( $post_id );
-
+	private function update_scroll_post( $post_id ) {
 		$scroll_id = get_post_meta( $post_id, '_scroll_id', true );
+
 		$content_url = ScrollKit::build_content_url( $scroll_id );
-
-		if ( empty( $post ) || empty( $content_url ) ) {
-			$this->log_error_and_die( 'Empty post or content URL' );
-		}
-
+		// fetch data from scroll kit
 		$results = wp_remote_get( $content_url );
 
 		if ( is_wp_error( $results) ) {
@@ -311,7 +312,7 @@ class ScrollKit {
 
 		$response_code = $results['response']['code'];
 		if ( $response_code !== 200 ) {
-			$this->log_error_and_die( "error requesting content from $content_url, error code  " . $response_code );
+			$this->log_error_and_die( "Error requesting content from $content_url, error code  " . $response_code );
 		}
 
 		$data = json_decode( $results['body'] );
@@ -326,27 +327,27 @@ class ScrollKit {
 	}
 
 	/**
-	 * Active a scroll post, converting the post if it's not a scroll.
-	 * if it's a a disabled scroll then enable it
+	 * Active a scroll post that's either not a scroll post yet, or it's a scroll
+	 * post that's disabled
 	 */
-	private function activate_post( $post_ID ) {
-		$state = get_post_meta( $post_ID, '_scroll_state', true );
+	private function activate_post( $post_id ) {
+		$state = get_post_meta( $post_id, '_scroll_state', true );
 		$state = empty( $state ) ? 'none' : $state;
 
 		switch ( $state ) {
 			case 'active':
 				return;
 			case 'inactive':
-				update_post_meta( $post_ID, '_scroll_state', 'active' );
+				update_post_meta( $post_id, '_scroll_state', 'active' );
 				return;
 			case 'none':
-				$this->convert_post( $post_ID );
+				$this->convert_post( $post_id );
 				return;
 		}
 	}
 
 	/**
-	 * Creates a fork of an existing scroll
+	 * Creates a duplicate of an existing scroll
 	 */
 	private function load_scroll( $post_id, $scroll_id ) {
 
@@ -356,21 +357,15 @@ class ScrollKit {
 
 		// collect all the data needed to send to sk
 		$data = array();
-		$data['title'] = get_the_title( $post_id );
-		$data['cms_id'] = $post_id;
-		$data['cms_url'] = get_bloginfo('url');
-		$data['api_key'] = $api_key;
+		$data['title']     = get_the_title( $post_id );
+		$data['cms_id']    = $post_id;
+		$data['cms_url']   = get_bloginfo('url');
+		$data['api_key']   = $api_key;
 		$data['scroll_id'] = $scroll_id;
 
 		$this->request_new_scroll( $data, $post_id );
 
-		$this->update_sk_post( $post_id );
-
-		// send the user back to the post edit context
-		// where they are notified that a post is a scroll
-		$edit_url = get_edit_post_link( $post_id , '' );
-		wp_safe_redirect( $edit_url );
-		exit;
+		$this->update_scroll_post( $post_id );
 	}
 
 	/**
@@ -379,9 +374,12 @@ class ScrollKit {
 	 */
 	private function deactivate_post( $post_ID ) {
 		$state = get_post_meta( $post_ID, '_scroll_state', true );
+
+		// handle posts that are already deactivated
 		if ( empty( $state ) || $state === 'inactive' ) {
 			return;
 		}
+
 		update_post_meta( $post_ID, '_scroll_state', 'inactive' );
 	}
 
@@ -407,23 +405,27 @@ class ScrollKit {
 		$data['api_key'] = $api_key;
 
 		$this->request_new_scroll( $data, $post_id );
-
-		// send the user back to the post edit context
-		// where they are notified that a post is a scroll
-		wp_safe_redirect( get_edit_post_link( $post_id , '' ) );
 	}
 
+	/**
+	 * Asks scrollkit for a scroll
+	 *
+	 * pass in a 'scroll_id' attribute on data to duplicate an existing scroll
+	 *
+	 * pass in 'content' and 'title' attributes if you want scrollkit to create a
+	 * scroll with existing content
+	 */
 	private function request_new_scroll( $data, $post_id ) {
 		// send the data to scrollkit
 		$response = wp_remote_post( SCROLL_WP_API . 'new',  array(
-				'method' => 'POST',
-				'timeout' => 45,
+				'method'      => 'POST',
+				'timeout'     => 45,
 				'redirection' => 5,
 				'httpversion' => '1.0',
-				'blocking' => true,
-				'headers' => array(),
-				'body' => $data,
-				'cookies' => array()
+				'blocking'    => true,
+				'headers'     => array(),
+				'body'        => $data,
+				'cookies'     => array()
 			)
 		);
 
@@ -447,8 +449,7 @@ class ScrollKit {
 				exit;
 			default:
 				// probably a 500 error
-				wp_die("Scroll Kit had an unexpected error, please contact"
-						. " hey@scrollkit.com if this continues to happen",
+				wp_die("Scroll Kit had an unexpected error, please contact hey@scrollkit.com if this continues to happen",
 						"Error with Scroll Kit");
 		}
 
@@ -468,8 +469,8 @@ class ScrollKit {
 	/**
 	 * Render the settings view for inputting the api key, header and footer
 	 */
-	public static function render_settings_view() {
-		include( dirname( __FILE__ ) . '/settings-view.php');
+	public function render_settings_view() {
+		@include dirname( __FILE__ ) . '/settings-view.php';
 	}
 
 	/**
@@ -491,7 +492,6 @@ class ScrollKit {
 		$input['scrollkit_api_key'] = wp_filter_nohtml_kses( $input['scrollkit_api_key'] );
 		return $input;
 	}
-
 
 	/**
 	 * Gives the user a scrollkit url where they can edit the post
@@ -532,7 +532,6 @@ EOT;
 </html>
 EOT;
 	}
-
 }
 
 new ScrollKit();
