@@ -486,6 +486,32 @@ class ScrollKit {
 	}
 
 	/**
+	 * Pulls the scroll id from a variety of strings
+	 * e.g.
+	 *
+	 * https://www.scrollkit.com/s/1IqDfAD/edit
+	 * http://www.scrollkit.com/s/1IqDfAD/
+	 * 1IqDfAD
+	 *
+	 * will all return 1IqDfAD
+	 *
+	 * returns null on invalid input
+	 */
+	public static function parse_scroll_id( $mixed ) {
+		// Some people, when confronted with a problem, think
+		// “I know, I'll use regular expressions.”
+		// Now they have found true <3<3<3<3<3<3
+		$pattern = '/\s*(https?:\/\/.*\/s\/)?([a-zA-Z0-9]+).*$/';
+
+		$is_match = preg_match( $pattern, $mixed, $matches );
+		if ( $is_match !== 1 || count( $matches ) < 3 ) {
+			return null;
+		}
+
+		return $matches[2];
+	}
+
+	/**
 	 * Sanitizes the api key
 	 */
 	public static function validate_options( $input ) {
