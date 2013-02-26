@@ -1,16 +1,7 @@
 <?php
-
 	/**
-	 * minimal template rendering with variables between {{ mustaches }}
+	 * Template for displaying posts with scroll content
 	 */
-	function render_template($data, $template){
-		$rendered = $template;
-		foreach ($data as $key => $val){
-			$pattern = "/{{\s*" . $key . "\s*}}/";
-			$rendered = preg_replace($pattern, $val, $rendered);
-		}
-		return $rendered;
-	}
 
 	$stylesheet_html = '';
 	$stylesheets = get_post_meta($post->ID, '_scroll_css', true);
@@ -26,26 +17,25 @@
 		$script_html .= "<script src=\"$script\" type=\"text/javascript\"></script>\n";
 	}
 
-	$options = get_option('scroll_wp_options');
-
-	global $post;
-	$data = array(
+	$template_data = array(
 		'stylesheets' => $stylesheet_html,
 		'scripts' => $script_html,
 		// why wordpress doesn't escape the title is beyond me
-		'title' => wp_filter_nohtml_kses(get_the_title($post->ID)),
+		'title' => wp_filter_nohtml_kses(get_the_title(get_the_ID())),
 	);
 
-	$debug = '';
-	if (WP_DEBUG === true){
-		$debug .= "\n<!--";
-		$debug .= "\nscroll id: " . get_post_meta($post->ID, '_scroll_id', true);
-		$debug .= "\n-->";
-		$debug .= "\n";
-	}
 
-	$header = render_template($data, $options['template_header']);
-	$content = get_post_meta($post->ID, '_scroll_content', true);
-	$footer = render_template($data, $options['template_footer']);
+	$options = get_option('scroll_wp_options');
 
-	echo $header . $debug . $content . $footer;
+?>
+<?php ScrollKit::render_template($template_data, $options['template_header']); ?>
+
+<?php if (WP_DEBUG): ?>
+	<!--
+	scroll id: <?php get_post_meta(get_the_ID(), '_scroll_id', true); ?>
+	-->
+<?php endif ?>
+
+<?php echo get_post_meta(get_the_ID(), '_scroll_content', true); ?>
+
+<?php ScrollKit::render_template($template_data, $options['template_footer']); ?>

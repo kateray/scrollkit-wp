@@ -223,7 +223,7 @@ class ScrollKit {
 					wp_die( 'There was an error with the scrollkit URL or ID provided' );
 				}
 
-				$this->load_scroll( $post_id, $scroll_id );
+				$this->copy_existing_scroll( $post_id, $scroll_id );
 				break;
 
 			// a user can deactive a scroll so the normal post is served
@@ -347,7 +347,7 @@ class ScrollKit {
 	/**
 	 * Creates a duplicate of an existing scroll
 	 */
-	private function load_scroll( $post_id, $scroll_id ) {
+	private function copy_existing_scroll( $post_id, $scroll_id ) {
 
 		// fetch the user entered api key from plugin's settings
 		$options = get_option( 'scroll_wp_options' );
@@ -432,7 +432,7 @@ class ScrollKit {
 			wp_die( $response->get_error_message() );
 		}
 
-		// Handle sk response
+		// handle sk response
 		$http_response_code = $response['response']['code'];
 
 		switch ( $http_response_code ) {
@@ -530,6 +530,18 @@ class ScrollKit {
 	 */
 	public static function build_content_url( $scrollkit_id ) {
 		return SCROLL_WP_SK_URL . "s/$scrollkit_id/content";
+	}
+
+	/**
+	 * minimal template rendering with variables between {{ mustaches }}
+	 */
+	public static function render_template($data, $template){
+		$rendered = $template;
+		foreach ($data as $key => $val){
+			$pattern = "/{{\s*" . $key . "\s*}}/";
+			$rendered = preg_replace($pattern, $val, $rendered);
+		}
+		echo $rendered;
 	}
 
 	/**
