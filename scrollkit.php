@@ -53,7 +53,7 @@ class ScrollKit {
 	 */
 	public function action_admin_menu() {
 		add_options_page( 'Scroll Kit', 'Scroll Kit', 'manage_options',
-				__FILE__, array( $this, 'render_settings_view' ) );
+				'scroll-kit', array( $this, 'render_settings_view' ) );
 	}
 
 	/**
