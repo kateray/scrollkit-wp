@@ -514,6 +514,8 @@ class ScrollKit {
 	public static function validate_options( $input ) {
 		$output = array();
 		$output['scrollkit_api_key'] = sanitize_text_field( $input['scrollkit_api_key'] );
+		$output['template_header'] = wp_filter_post_kses( $input['template_header'] );
+		$output['template_footer'] = wp_filter_post_kses( $input['template_footer'] );
 		return $output;
 	}
 
