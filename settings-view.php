@@ -63,7 +63,7 @@
 					<textarea rows="10" cols="100"
 						id="header-input"
 						name="scroll_wp_options[template_header]"><?php
-						echo esc_textarea($options['template_header'], ENT_QUOTES, "UTF-8");
+						echo esc_textarea($options['template_header'] );
 					?></textarea>
 				</td>
 			</tr>
@@ -77,7 +77,7 @@
 					<textarea rows="10" cols="100"
 						id="footer-input"
 						name="scroll_wp_options[template_footer]"><?php
-						echo esc_textarea($options['template_footer'], ENT_QUOTES, "UTF-8")
+						echo esc_textarea($options['template_footer'] )
 					?></textarea>
 				</td>
 			</tr>
