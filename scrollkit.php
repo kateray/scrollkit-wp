@@ -512,8 +512,9 @@ class ScrollKit {
 	 * Sanitizes the api key
 	 */
 	public static function validate_options( $input ) {
-		$input['scrollkit_api_key'] = wp_filter_nohtml_kses( $input['scrollkit_api_key'] );
-		return $input;
+		$output = array();
+		$output['scrollkit_api_key'] = sanitize_text_field( $input['scrollkit_api_key'] );
+		return $output;
 	}
 
 	/**
