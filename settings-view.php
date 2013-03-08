@@ -35,7 +35,7 @@
 					Scroll Kit has encoutered the following errors:
 					<ul>
 					<?php foreach ( $options['errors'] as $error ): ?>
-						<li><?php echo sanitize_text_field($error) ?></li>
+						<li><?php echo esc_html($error) ?></li>
 					<?php endforeach ?>
 					</ul>
 					<p class="submit">
@@ -48,7 +48,7 @@
 			<tr>
 				<th scope="row">Scroll Kit API Key</th>
 				<td>
-					<input type="text" size="57" name="scroll_wp_options[scrollkit_api_key]" value="<?php echo sanitize_text_field($options['scrollkit_api_key']); ?>" autocomplete="off" />
+					<input type="text" size="57" name="scroll_wp_options[scrollkit_api_key]" value="<?php echo esc_attr($options['scrollkit_api_key']); ?>" autocomplete="off" />
 					<br>
 				  <a href="https://www.scrollkit.com/api/wp" target="_blank">Get an api key</a>
 				</td>
@@ -63,7 +63,7 @@
 					<textarea rows="10" cols="100"
 						id="header-input"
 						name="scroll_wp_options[template_header]"><?php
-						echo htmlentities($options['template_header'], ENT_QUOTES, "UTF-8");
+						echo esc_textarea($options['template_header'], ENT_QUOTES, "UTF-8");
 					?></textarea>
 				</td>
 			</tr>
@@ -77,7 +77,7 @@
 					<textarea rows="10" cols="100"
 						id="footer-input"
 						name="scroll_wp_options[template_footer]"><?php
-						echo htmlentities($options['template_footer'], ENT_QUOTES, "UTF-8")
+						echo esc_textarea($options['template_footer'], ENT_QUOTES, "UTF-8")
 					?></textarea>
 				</td>
 			</tr>
