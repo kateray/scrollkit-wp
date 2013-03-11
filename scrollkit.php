@@ -20,7 +20,6 @@ if ( defined('SK_DEBUG_URL') ) {
 
 define( 'SCROLL_WP_API', SCROLL_WP_SK_URL . 'api/' );
 define( 'SCROLL_WP_BASENAME', plugin_basename( __FILE__ ) );
-define( 'SCROLL_WP_SETTINGS_URL', get_admin_url() . "options-general.php?page=" . SCROLL_WP_BASENAME );
 
 
 class ScrollKit {
@@ -53,7 +52,7 @@ class ScrollKit {
 	 */
 	public function action_admin_menu() {
 		add_options_page( 'Scroll Kit', 'Scroll Kit', 'manage_options',
-				__FILE__, array( $this, 'render_settings_view' ) );
+				'scroll-kit', array( $this, 'render_settings_view' ) );
 	}
 
 	/**
@@ -135,7 +134,7 @@ class ScrollKit {
 	public function filter_plugin_action_links( $links, $file ) {
 
 		if ( $file == plugin_basename( __FILE__ ) ) {
-			$settings_link = '<a href="' . SCROLL_WP_SETTINGS_URL . '">' . __('Settings') . '</a>';
+			$settings_link = '<a href="' . menu_page_url( 'scroll-kit', false ) . '">' . __('Settings') . '</a>';
 
 			// make the 'Settings' link appear first
 			array_unshift( $links, $settings_link );
@@ -441,7 +440,7 @@ class ScrollKit {
 			case 422:
 				// api key is incorrect, redirect the user to this plugin's setting page
 				// where there's a message indicating an api key issue
-				$destination = add_query_arg('api-key-error', 'true', SCROLL_WP_SETTINGS_URL);
+				$destination = add_query_arg('api-key-error', 'true', menu_page_url( 'scroll-kit', false ) );
 
 				wp_safe_redirect( $destination );
 				exit;
@@ -513,8 +512,11 @@ class ScrollKit {
 	 * Sanitizes the api key
 	 */
 	public static function validate_options( $input ) {
-		$input['scrollkit_api_key'] = wp_filter_nohtml_kses( $input['scrollkit_api_key'] );
-		return $input;
+		$output = array();
+		$output['scrollkit_api_key'] = sanitize_text_field( $input['scrollkit_api_key'] );
+		$output['template_header'] = wp_filter_post_kses( $input['template_header'] );
+		$output['template_footer'] = wp_filter_post_kses( $input['template_footer'] );
+		return $output;
 	}
 
 	/**
