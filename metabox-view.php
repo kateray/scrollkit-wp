@@ -30,7 +30,7 @@ switch($state){
 <p>
 	<?php // TODO copy ?>
 	Errors detected, visit
-	<a href="<?php echo SCROLL_WP_SETTINGS_URL ?>">settings</a>
+	<a href="<?php menu_page_url( 'scroll-kit' ); ?>">settings</a>
 </p>
 <?php endif ?>
 
