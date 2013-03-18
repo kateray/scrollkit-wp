@@ -89,17 +89,15 @@
 </div>
 <script>
 	(function(){
-		$ = jQuery;
-
-		$('#scroll-header-default').on('click', function(){
-			$("#header-input").val(
-				<?php echo json_encode(ScrollKit::template_header_default() ) ?>
+		jQuery('#scroll-header-default').on('click', function(){
+			jQuery("#header-input").val(
+				<?php echo json_encode( ScrollKit::template_header_default() ) ?>
 			);
 		});
 
-		$('#scroll-footer-default').on('click', function(){
-			$("#footer-input").val(
-				<?php echo json_encode(ScrollKit::template_footer_default() ) ?>
+		jQuery('#scroll-footer-default').on('click', function(){
+			jQuery("#footer-input").val(
+				<?php echo json_encode( ScrollKit::template_footer_default() ) ?>
 			);
 		});
 

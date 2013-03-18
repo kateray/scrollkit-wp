@@ -97,8 +97,7 @@ _scroll_state: <?php echo get_post_meta( get_the_ID(), '_scroll_state', true ); 
 
 <script>
 	(function(){
-		var $ = jQuery
-			, postStatus = "<?php echo get_post_status() ?>";
+		var postStatus = "<?php echo get_post_status() ?>";
 
 		isPostDirty = function(){
 			if (postStatus === 'auto-draft')
@@ -110,11 +109,11 @@ _scroll_state: <?php echo get_post_meta( get_the_ID(), '_scroll_state', true ); 
 				return mce.isDirty();
 			} else {
 				if ( fullscreen && fullscreen.settings.visible ) {
-					title = $('#wp-fullscreen-title').val() || '';
-					content = $("#wp_mce_fullscreen").val() || '';
+					title = jQuery('#wp-fullscreen-title').val() || '';
+					content = jQuery("#wp_mce_fullscreen").val() || '';
 				} else {
-					title = $('#post #title').val() || '';
-					content = $('#post #content').val() || '';
+					title = jQuery('#post #title').val() || '';
+					content = jQuery('#post #content').val() || '';
 				}
 
 				return ( ( title || content ) && title + content != autosaveLast );
@@ -123,17 +122,17 @@ _scroll_state: <?php echo get_post_meta( get_the_ID(), '_scroll_state', true ); 
 
 		var disableIfDirty = function() {
 			if ( isPostDirty() ) {
-				$('.js-sk-disable-on-dirty').addClass('button-disabled');
-				$('.js-sk-enable-on-dirty').css('visibility', 'visible');
+				jQuery('.js-sk-disable-on-dirty').addClass('button-disabled');
+				jQuery('.js-sk-enable-on-dirty').css('visibility', 'visible');
 			}
 		}
 
-		$('#title, #content').on('keydown', disableIfDirty);
+		jQuery('#title, #content').on('keydown', disableIfDirty);
 
 		// hook into the tiny mce iframe's iframe that lives within
 		// #content_ifr
-		$(window).load(function() {
-			$('#content_ifr').contents().on('keydown', disableIfDirty);
+		jQuery(window).load(function() {
+			jQuery('#content_ifr').contents().on('keydown', disableIfDirty);
 		});
 
 		disableIfDirty();
