@@ -3,11 +3,12 @@
 Testing
 -------
 
- 1. Set up a test environment with [wp-cli][wp-cli]
+There are a couple of unit tests.
 
+Set up a test environment with [wp-cli][wp-cli], and run the tests:
 
-
-
+    $ cd path/to/wordpress/wp-content/plugin/scrollkit-wp/tests
+    $ WP_TESTS_DIR=~/path/to/wordpress phpunit
 
 
 
