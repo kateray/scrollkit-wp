@@ -9,7 +9,7 @@
 		<?php endif ?>
 
 		<?php foreach ( get_post_meta( get_the_ID(), '_scroll_css', true ) as $stylesheet): ?>
-			<link href="<?php echo SCROLL_WP_SK_URL . $stylesheet ?>" media="screen" rel="stylesheet" type="text/css" />
+			<link href="<?php echo SCROLL_WP_SK_ASSET_URL . $stylesheet ?>" media="screen" rel="stylesheet" type="text/css" />
 		<?php endforeach; ?>
 
 		<style type="text/css">
@@ -20,7 +20,7 @@
 		<div id="skrollr-body">
 			<?php if (WP_DEBUG): ?>
 				<!--
-				scroll id: <?php get_post_meta(get_the_ID(), '_scroll_id', true) ?>
+				scroll id: <?php echo get_post_meta(get_the_ID(), '_scroll_id', true) ?>
 				-->
 			<?php endif ?>
 
@@ -29,7 +29,7 @@
 		</div>
 
 		<?php foreach( get_post_meta( get_the_ID(), '_scroll_js', true) as $script): ?>
-			<script src="<?php echo SCROLL_WP_SK_URL . $script ?>" type="text/javascript"></script>
+			<script src="<?php echo SCROLL_WP_SK_ASSET_URL . $script ?>" type="text/javascript"></script>
 		<?php endforeach ?>
 
 	</body>

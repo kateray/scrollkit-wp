@@ -9,14 +9,16 @@ Author URI: http://scrollkit.com
 License: GPL2
 */
 
-
 // put this into your wp-config.php if you are running scrollkit locally:
 // define('SK_DEBUG_URL', 'http://localhost:3000/');
 if ( defined('SK_DEBUG_URL') ) {
 	define( 'SCROLL_WP_SK_URL', SK_DEBUG_URL );
 } else {
 	define( 'SCROLL_WP_SK_URL', 'http://www.scrollkit.com/' );
+	// TODO this should be some sort of CDN instead of our rails app
+	define( 'SCROLL_WP_SK_ASSET_URL', SCROLL_WP_SK_URL );
 }
+
 
 define( 'SCROLL_WP_API', SCROLL_WP_SK_URL . 'api/' );
 define( 'SCROLL_WP_BASENAME', plugin_basename( __FILE__ ) );
