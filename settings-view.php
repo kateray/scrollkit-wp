@@ -53,53 +53,9 @@
 				  <a href="https://www.scrollkit.com/api/wp" target="_blank">Get an api key</a>
 				</td>
 			</tr>
-			<tr>
-				<td>
-					HTML Header
-					<br>
-					<button id="scroll-header-default" type="button">Set to Default</button>
-				</td>
-				<td>
-					<textarea rows="10" cols="100"
-						id="header-input"
-						name="scroll_wp_options[template_header]"><?php
-						echo esc_textarea($options['template_header'] );
-					?></textarea>
-				</td>
-			</tr>
-			<tr>
-				<td>
-					HTML Footer
-					<br>
-					<button id="scroll-footer-default" type="button">Set to Default</button>
-				</td>
-				<td>
-					<textarea rows="10" cols="100"
-						id="footer-input"
-						name="scroll_wp_options[template_footer]"><?php
-						echo esc_textarea($options['template_footer'] )
-					?></textarea>
-				</td>
-			</tr>
 		</table>
 		<p class="submit">
 			<input type="submit" class="button-primary" value="<?php _e('Save Changes') ?>" />
 		</p>
 	</form>
 </div>
-<script>
-	(function(){
-		jQuery('#scroll-header-default').on('click', function(){
-			jQuery("#header-input").val(
-				<?php echo json_encode( ScrollKit::template_header_default() ) ?>
-			);
-		});
-
-		jQuery('#scroll-footer-default').on('click', function(){
-			jQuery("#footer-input").val(
-				<?php echo json_encode( ScrollKit::template_footer_default() ) ?>
-			);
-		});
-
-	})();
-</script>

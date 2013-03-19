@@ -464,7 +464,7 @@ class ScrollKit {
 	}
 
 	/**
-	 * Render the settings view for inputting the api key, header and footer
+	 * Render the settings view for inputting the api key
 	 */
 	public function render_settings_view() {
 		@include dirname( __FILE__ ) . '/settings-view.php';
@@ -515,8 +515,6 @@ class ScrollKit {
 	public static function validate_options( $input ) {
 		$output = array();
 		$output['scrollkit_api_key'] = sanitize_text_field( $input['scrollkit_api_key'] );
-		$output['template_header'] = wp_filter_post_kses( $input['template_header'] );
-		$output['template_footer'] = wp_filter_post_kses( $input['template_footer'] );
 		return $output;
 	}
 
@@ -547,42 +545,9 @@ class ScrollKit {
 		echo $rendered;
 	}
 
-	/**
-	 * Default values for the html header on a scroll post
-	 */
-	public static function template_header_default() {
-
-		$blog_title = get_bloginfo( 'name' );
-		return <<<EOT
-<!DOCTYPE html>
-<html>
-	<head>
-		<title>{{ title }} | $blog_title</title>
-		<meta name="viewport" content="width=980">
-		{{ stylesheets }}
-	</head>
-	<body class="published">
-		<div id="skrollr-body">
-EOT;
-	}
-
-	/**
-	 * Default values for the html footer on a scroll post
-	 */
-	public static function template_footer_default() {
-		return <<<EOT
-		</div>
-		{{ scripts }}
-	</body>
-</html>
-EOT;
-	}
-
 	public static function option_defaults() {
 		return array(
 			"scrollkit_api_key" => "",
-			"template_header"   => self::template_header_default(),
-			"template_footer"   => self::template_footer_default()
 		);
 	}
 }
