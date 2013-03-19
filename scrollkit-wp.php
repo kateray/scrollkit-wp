@@ -263,18 +263,7 @@ class ScrollKit {
 	 * Logs an error to our plugin's option table
 	 */
 	private function log_error( $error_message ) {
-		$options = get_option( 'scroll_wp_options', self::option_defaults() );
-		$errors = array();
-
-		if ( array_key_exists( 'errors', $options ) ) {
-			$errors = $options['errors'];
-		}
-
-		$errors[] = $error_message;
-
-		$options['errors'] = $errors;
-
-		update_option( 'scroll_wp_options', $options );
+		error_log( $error_message );
 	}
 
 	/**

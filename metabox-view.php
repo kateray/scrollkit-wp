@@ -26,14 +26,6 @@ switch($state){
 
 <h4><?php echo $copy['heading'] ?></h4>
 
-<?php if ( array_key_exists( 'errors', $options ) ): ?>
-<p>
-	<?php // TODO copy ?>
-	Errors detected, visit
-	<a href="<?php menu_page_url( 'scroll-kit' ); ?>">settings</a>
-</p>
-<?php endif ?>
-
 <?php if (!empty($scrollkit_id)): ?>
 <a href="<?php echo ScrollKit::build_edit_url( $scrollkit_id ) ?>"
 		target="_blank"
