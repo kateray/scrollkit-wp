@@ -490,9 +490,9 @@ class ScrollKit {
 		delete_post_meta( $post_id, '_scroll_state' );
 		delete_post_meta( $post_id, '_scroll_content' );
 		delete_post_meta( $post_id, '_scroll_style' );
-		delete_post_meta( $post_id, '_scroll_css' );
-		delete_post_meta( $post_id, '_scroll_fonts' );
 		delete_post_meta( $post_id, '_scroll_js' );
+		delete_post_meta( $post_id, '_scroll_fonts' );
+		delete_post_meta( $post_id, '_scroll_css' );
 	}
 
 	/**
