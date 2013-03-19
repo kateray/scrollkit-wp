@@ -34,8 +34,6 @@ class ScrollKit {
 		add_filter( 'admin_footer'         , array( $this, 'filter_admin_footer') );
 		add_filter( 'plugin_action_links'  , array( $this, 'filter_plugin_action_links' ), 10, 2 );
 
-		register_activation_hook( __FILE__ , array( $this, 'hook_add_defaults' ));
-
 		register_uninstall_hook( __FILE__  , array( 'Scroll', 'hook_delete_plugin_options' ) );
 	}
 
@@ -144,23 +142,6 @@ class ScrollKit {
 	}
 
 	/**
-	 * Some defaults for the header and footer on first activation
-	 */
-	public function hook_add_defaults() {
-		$tmp = get_option( 'scroll_wp_options' );
-		if ( !is_array( $tmp ) ) {
-
-			$arr = array(
-				"scrollkit_api_key" => "",
-				"template_header"   => ScrollKit::template_header_default(),
-				"template_footer"   => ScrollKit::template_footer_default()
-			);
-
-			update_option( 'scroll_wp_options', $arr );
-		}
-	}
-
-	/**
 	 * Delete options table entries when plugin deactivated AND deleted
 	 *
 	 * Note: this doesn't remove metadata associated with existing scroll posts
@@ -216,7 +197,7 @@ class ScrollKit {
 			// copy of an existing scroll
 			case 'load':
 				$skid = isset( $_GET['skid'] ) ? $_GET['skid'] : '';
-				$scroll_id = ScrollKit::parse_scroll_id($skid);
+				$scroll_id = self::parse_scroll_id($skid);
 
 				if ($scroll_id === null) {
 					wp_die( 'There was an error with the scrollkit URL or ID provided' );
@@ -247,7 +228,7 @@ class ScrollKit {
 	private function is_api_key_valid() {
 		$api_key = isset( $_GET['key'] ) ? $_GET['key'] : null;
 
-		$options = get_option( 'scroll_wp_options' );
+		$options = get_option( 'scroll_wp_options', self::option_defaults() );
 
 		if ( empty( $options['scrollkit_api_key'] ) || $api_key !== $options['scrollkit_api_key'] ) {
 			return false;
@@ -270,7 +251,7 @@ class ScrollKit {
 	 * Logs an error to our plugin's option table
 	 */
 	private function log_error( $error_message ) {
-		$options = get_option( 'scroll_wp_options' );
+		$options = get_option( 'scroll_wp_options', self::option_defaults() );
 		$errors = array();
 
 		if ( array_key_exists( 'errors', $options ) ) {
@@ -300,7 +281,7 @@ class ScrollKit {
 		$scroll_id = get_post_meta( $post_id, '_scroll_id', true );
 
 		// fetch data from scroll kit
-		$content_url = ScrollKit::build_content_url( $scroll_id );
+		$content_url = self::build_content_url( $scroll_id );
 		$results = wp_remote_get( $content_url );
 
 		if ( is_wp_error( $results) ) {
@@ -320,7 +301,7 @@ class ScrollKit {
 		update_post_meta( $post_id , '_scroll_js'      , $this->sanitize_url_array( $data->js ) );
 
 		// trigger update incase the user has a cache
-		clean_post_cache( $post_id )
+		clean_post_cache( $post_id );
 	}
 
 	public static function sanitize_url_array( $unsafe_url_array ) {
@@ -359,7 +340,7 @@ class ScrollKit {
 	private function copy_existing_scroll( $post_id, $scroll_id ) {
 
 		// fetch the user entered api key from plugin's settings
-		$options = get_option( 'scroll_wp_options' );
+		$options = get_option( 'scroll_wp_options', self::option_defaults() );
 		$api_key = $options['scrollkit_api_key'];
 
 		// collect all the data needed to send to sk
@@ -397,7 +378,7 @@ class ScrollKit {
 		$post = get_post( $post_id );
 
 		// fetch the user entered api key from plugin's settings
-		$options = get_option( 'scroll_wp_options' );
+		$options = get_option( 'scroll_wp_options', self::option_defaults() );
 		$api_key = $options['scrollkit_api_key'];
 
 		// collect all the data needed to send to sk
@@ -585,6 +566,14 @@ EOT;
 	</body>
 </html>
 EOT;
+	}
+
+	public static function option_defaults() {
+		return array(
+			"scrollkit_api_key" => "",
+			"template_header"   => self::template_header_default(),
+			"template_footer"   => self::template_footer_default()
+		);
 	}
 }
 

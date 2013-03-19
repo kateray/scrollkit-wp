@@ -25,7 +25,7 @@
 	);
 
 
-	$options = get_option('scroll_wp_options');
+	$options = get_option('scroll_wp_options', ScrollKit::option_defaults() );
 
 ?>
 <?php ScrollKit::render_template($template_data, $options['template_header']); ?>
