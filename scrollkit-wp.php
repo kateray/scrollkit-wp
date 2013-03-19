@@ -314,13 +314,21 @@ class ScrollKit {
 
 		$data = json_decode( $results['body'] );
 
-		update_post_meta( $post_id, '_scroll_content', $data->content );
-		update_post_meta( $post_id, '_scroll_css', $data->css );
-		update_post_meta( $post_id, '_scroll_fonts', $data->fonts );
-		update_post_meta( $post_id, '_scroll_js',  $data->js );
+		update_post_meta( $post_id , '_scroll_content' , wp_filter_post_kses( $data->content ) );
+		update_post_meta( $post_id , '_scroll_css'     , $this->sanitize_url_array( $data->css ) );
+		update_post_meta( $post_id , '_scroll_fonts'   , $this->sanitize_url_array( $data->fonts ) );
+		update_post_meta( $post_id , '_scroll_js'      , $this->sanitize_url_array( $data->js ) );
 
 		// trigger update incase the user has a cache
 		wp_update_post( array( 'ID' => $post_id ) );
+	}
+
+	function sanitize_url_array( $unsafe_url_array ) {
+		$sanitized_urls = array();
+		foreach ($unsafe_url_array as $unsafe_url) {
+			$sanitized_urls[] = esc_url( $unsafe_url );
+		}
+		return $sanitized_urls;
 	}
 
 	/**
@@ -452,7 +460,7 @@ class ScrollKit {
 
 		$response_body = json_decode( $response['body'], true );
 
-		update_post_meta( $post_id, '_scroll_id', $response_body['sk_id'] );
+		update_post_meta( $post_id, '_scroll_id', sanitize_text_field( $response_body['sk_id'] ) );
 		update_post_meta( $post_id, '_scroll_state', 'active' );
 	}
 
