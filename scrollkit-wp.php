@@ -76,7 +76,13 @@ class ScrollKit {
 		// deal with special scroll action calls - scrollkit will make these
 		// when a user hits 'done' on scroll kit
 		if ( get_query_var('scrollkit') ) {
-			$this->handle_scroll_action( get_query_var('scrollkit') );
+			$action = get_query_var('scrollkit');
+			if ( $action === 'update' ) {
+				// only scrollkit can hit the update endpoint
+				$this->handle_scrollkit_update_request();
+			} else {
+				$this->handle_user_action( $action );
+			}
 		}
 
 		// if it's not a single post, don't render it as a scroll
@@ -160,14 +166,16 @@ class ScrollKit {
 	}
 
 	/**
-	 * Handles all requests that manipulate scroll data
+	 * Handles all user requests that manipulate scroll data
 	 * e.g. update, deactive, activate, delete
 	 */
-	private function handle_scroll_action($method) {
-
-		$this->authenticate_request();
+	private function handle_user_action($method) {
 
 		$post_id = get_query_var( 'scrollkit_cms_id' );
+
+		if ( !current_user_can( 'edit_post', $post_id ) ) {
+			wp_die( 'Insufficient permissions', '', array('response' => 401) );
+		}
 
 		if ( empty( $post_id ) ) {
 			$this->log_error_and_die( 'No post id provided' );
@@ -182,12 +190,6 @@ class ScrollKit {
 		}
 
 		switch ( $method ) {
-
-			// scrollkit.com calls this when a user hits 'done'
-			// exit before unneeded redirect
-			case 'update':
-				$this->update_scroll_post( $post_id );
-				exit;
 
 			// a user can activate a non-scroll post, or a scroll post that is
 			// deactivated
@@ -224,6 +226,24 @@ class ScrollKit {
 		exit;
 	}
 
+	private function handle_scrollkit_update_request() {
+		$post_id = get_query_var( 'scrollkit_cms_id' );
+
+		if ( empty( $post_id ) ) {
+			$this->log_error_and_die( 'No post id provided' );
+		}
+
+		if ( !get_post( $post_id ) ){
+			$this->log_error_and_die( "Scroll Kit is trying to update a post that doesn't exist" );
+		}
+
+		if ( $this->is_api_key_valid() ) {
+			$this->update_scroll_post( $post_id );
+		} else {
+			$this->log_error_and_die('Invalid api key', 401);
+		}
+	}
+
 	/**
 	 * Checks if there's a valid api key in a request
 	 */
@@ -237,16 +257,6 @@ class ScrollKit {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Makes sure the user is an admin or the correct api key is provided
-	 * If not, the request is killed with an error message
-	 */
-	private function authenticate_request() {
-		if ( !current_user_can( 'edit_posts' ) && !$this->is_api_key_valid()) {
-			$this->log_error_and_die( 'Invalid API Key', 401 );
-		}
 	}
 
 	/**
