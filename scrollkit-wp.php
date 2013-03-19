@@ -323,10 +323,12 @@ class ScrollKit {
 		wp_update_post( array( 'ID' => $post_id ) );
 	}
 
-	function sanitize_url_array( $unsafe_url_array ) {
+	public static function sanitize_url_array( $unsafe_url_array ) {
 		$sanitized_urls = array();
 		foreach ($unsafe_url_array as $unsafe_url) {
-			$sanitized_urls[] = esc_url( $unsafe_url );
+			if ( esc_url( $unsafe_url ) !== '' ) {
+				$sanitized_urls[] = esc_url( $unsafe_url );
+			}
 		}
 		return $sanitized_urls;
 	}
