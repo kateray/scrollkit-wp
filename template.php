@@ -1,41 +1,31 @@
-<?php
-	/**
-	 * Template for displaying posts with scroll content
-	 */
+<!DOCTYPE html>
+<html>
+	<head>
+		<title><?php the_title(get_the_ID()) | bloginfo( 'name' ) ?></title>
+		<meta name="viewport" content="width=980">
 
-	$stylesheet_html = '';
-	$stylesheets = get_post_meta($post->ID, '_scroll_css', true);
-	foreach($stylesheets as $stylesheet){
-		$stylesheet_html .= "<link href=\"$stylesheet\" media=\"screen\" rel=\"stylesheet\" type=\"text/css\" />\n";
-	}
+		<?php foreach ( get_post_meta( get_the_ID(), '_scroll_css', true ) as $stylesheet): ?>
+			<link href="<?php echo SCROLL_WP_SK_URL . $stylesheet ?>" media="screen" rel="stylesheet" type="text/css" />
+		<?php endforeach; ?>
+		<style type="text/css">
+			<?php echo get_post_meta(get_the_ID(), '_scroll_style', true); ?>
+		</style>
+	</head>
+	<body class="published">
+		<div id="skrollr-body">
+			<?php if (WP_DEBUG): ?>
+				<!--
+				scroll id: <?php get_post_meta(get_the_ID(), '_scroll_id', true); ?>
+				-->
+			<?php endif ?>
 
-	$stylesheet_html .= get_post_meta($post->ID, '_scroll_fonts', true);
+			<?php echo get_post_meta(get_the_ID(), '_scroll_content', true); ?>
 
-	$script_html = '';
-	$scripts = get_post_meta($post->ID, '_scroll_js', true);
-	foreach($scripts as $script) {
-		$script_html .= "<script src=\"$script\" type=\"text/javascript\"></script>\n";
-	}
+		</div>
 
-	$template_data = array(
-		'stylesheets' => $stylesheet_html,
-		'scripts' => $script_html,
-		// why wordpress doesn't escape the title is beyond me
-		'title' => wp_filter_nohtml_kses(get_the_title(get_the_ID())),
-	);
+		<?php foreach(get_post_meta(get_the_ID(), '_scroll_js', true) as $script): ?>
+			<script src="<?php echo SCROLL_WP_SK_URL . $script ?>" type="text/javascript"></script>
+		<?php endforeach ?>
 
-
-	$options = get_option('scroll_wp_options', ScrollKit::option_defaults() );
-
-?>
-<?php ScrollKit::render_template($template_data, $options['template_header']); ?>
-
-<?php if (WP_DEBUG): ?>
-	<!--
-	scroll id: <?php get_post_meta(get_the_ID(), '_scroll_id', true); ?>
-	-->
-<?php endif ?>
-
-<?php echo get_post_meta(get_the_ID(), '_scroll_content', true); ?>
-
-<?php ScrollKit::render_template($template_data, $options['template_footer']); ?>
+	</body>
+</html>

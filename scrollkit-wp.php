@@ -296,9 +296,10 @@ class ScrollKit {
 		$data = json_decode( $results['body'] );
 
 		update_post_meta( $post_id , '_scroll_content' , wp_filter_post_kses( $data->content ) );
-		update_post_meta( $post_id , '_scroll_css'     , $this->sanitize_url_array( $data->css ) );
 		update_post_meta( $post_id , '_scroll_fonts'   , $this->sanitize_url_array( $data->fonts ) );
-		update_post_meta( $post_id , '_scroll_js'      , $this->sanitize_url_array( $data->js ) );
+		update_post_meta( $post_id , '_scroll_css'     , $this->sanitize_url_array( $data->css_paths ) );
+		update_post_meta( $post_id , '_scroll_style'   , wp_filter_post_kses( $data->style ) );
+		update_post_meta( $post_id , '_scroll_js'      , $this->sanitize_url_array( $data->js_paths ) );
 
 		// trigger update incase the user has a cache
 		clean_post_cache( $post_id );
@@ -468,6 +469,7 @@ class ScrollKit {
 		delete_post_meta( $post_id, '_scroll_id' );
 		delete_post_meta( $post_id, '_scroll_state' );
 		delete_post_meta( $post_id, '_scroll_content' );
+		delete_post_meta( $post_id, '_scroll_style' );
 		delete_post_meta( $post_id, '_scroll_css' );
 		delete_post_meta( $post_id, '_scroll_fonts' );
 		delete_post_meta( $post_id, '_scroll_js' );
