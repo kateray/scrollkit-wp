@@ -4,6 +4,10 @@
 		<title><?php the_title(get_the_ID()) | bloginfo( 'name' ) ?></title>
 		<meta name="viewport" content="width=980">
 
+		<?php if ( get_post_meta( get_the_ID(), '_scroll_fonts', true ) ): ?>
+			<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=<?php echo join('|', get_post_meta( get_the_ID(), '_scroll_fonts', true ) ) ?>">
+		<?php endif ?>
+
 		<?php foreach ( get_post_meta( get_the_ID(), '_scroll_css', true ) as $stylesheet): ?>
 			<link href="<?php echo SCROLL_WP_SK_URL . $stylesheet ?>" media="screen" rel="stylesheet" type="text/css" />
 		<?php endforeach; ?>
