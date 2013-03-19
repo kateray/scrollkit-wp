@@ -320,7 +320,7 @@ class ScrollKit {
 		update_post_meta( $post_id , '_scroll_js'      , $this->sanitize_url_array( $data->js ) );
 
 		// trigger update incase the user has a cache
-		wp_update_post( array( 'ID' => $post_id ) );
+		clean_post_cache( $post_id )
 	}
 
 	public static function sanitize_url_array( $unsafe_url_array ) {
