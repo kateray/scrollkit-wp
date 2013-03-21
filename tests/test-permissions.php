@@ -62,4 +62,20 @@ class PermissionsTest extends WP_UnitTestCase {
 		$this->plugin->handle_user_action( 'activate', $post_id );
 	}
 
+	function testAuthorCantEditOthersPosts(){
+		$author_id = $this->factory->user->create( array( 'role' => 'author' ) );
+		$other_author_id = $this->factory->user->create( array( 'role' => 'author' ) );
+
+		$post_id = $this->factory->post->create( array( 'post_author' => $author_id, 'post_type' => 'post' ) );
+
+		wp_set_current_user( $author_id );
+		$this->assertTrue(current_user_can( 'edit_post', $post_id ) );
+
+		wp_set_current_user( $other_author_id );
+		$this->assertFalse(current_user_can( 'edit_post', $post_id ) );
+
+		$this->setExpectedException( 'SKDieException' );
+		$this->plugin->handle_user_action( 'activate', $post_id );
+	}
+
 }
