@@ -1,8 +1,5 @@
 <?php
 
-/**
- * General exception for wp_die()
- */
 class SKDieException extends Exception {}
 class SKRedirectException extends Exception {}
 
@@ -12,7 +9,6 @@ class PermissionsTest extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
 
-		$this->orig_users = get_users_of_blog();
 		add_filter( 'wp_die_handler', array( $this, 'get_wp_die_handler' ) );
 		add_filter( 'wp_redirect', array( $this, 'wp_redirect' ) );
 
