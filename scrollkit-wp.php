@@ -70,17 +70,16 @@ class ScrollKit {
 	 */
 	public function filter_template_redirect() {
 
-		echo '$$$$$$$$$$$$$$$$$THISISBIG--------------------';
-		wp_die();
 		// deal with special scroll action calls - scrollkit will make these
 		// when a user hits 'done' on scroll kit
 		if ( self::get_parameter( 'scrollkit' ) ) {
 			$action = self::get_parameter( 'scrollkit' );
+			$post_id = self::get_parameter( 'scrollkit_cms_id' );
 			if ( $action === 'update' ) {
 				// only scrollkit can hit the update endpoint
 				$this->handle_scrollkit_update_request();
 			} else {
-				$this->handle_user_action( $action );
+				$this->handle_user_action( $action, $post_id );
 			}
 		}
 
@@ -166,10 +165,7 @@ class ScrollKit {
 	 * Handles all user requests that manipulate scroll data
 	 * e.g. update, deactive, activate, delete
 	 */
-	public function handle_user_action($method) {
-		wp_die();
-
-		$post_id = self::get_parameter( 'scrollkit_cms_id' );
+	public function handle_user_action( $method, $post_id ) {
 
 		if ( !current_user_can( 'edit_post', $post_id ) ) {
 			wp_die( 'Insufficient permissions', '', array('response' => 401) );
