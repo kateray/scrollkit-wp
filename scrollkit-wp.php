@@ -25,14 +25,11 @@ define( 'SCROLL_WP_BASENAME', plugin_basename( __FILE__ ) );
 
 
 class ScrollKit {
-
 	function __construct() {
-		add_action( 'admin_init'           , array( $this, 'action_admin_init' ) );
-		add_action( 'admin_menu'           , array( $this, 'action_admin_menu') );
-		add_action( 'add_meta_boxes'       , array( $this, 'action_add_metaboxes' ) );
-		add_action( 'template_redirect'    , array( $this, 'action_template_redirect' ) );
-
-		add_filter( 'query_vars'           , array( $this, 'filter_query_vars' ) );
+		add_filter( 'admin_init'           , array( $this, 'filter_admin_init' ) );
+		add_filter( 'admin_menu'           , array( $this, 'filter_admin_menu') );
+		add_filter( 'add_meta_boxes'       , array( $this, 'filter_add_metaboxes' ) );
+		add_filter( 'template_redirect'    , array( $this, 'filter_template_redirect' ) );
 		add_filter( 'admin_footer'         , array( $this, 'filter_admin_footer') );
 		add_filter( 'plugin_action_links'  , array( $this, 'filter_plugin_action_links' ), 10, 2 );
 
@@ -42,7 +39,7 @@ class ScrollKit {
 	/**
 	 * Init plugin options to white list our options
 	 */
-	public function action_admin_init() {
+	public function filter_admin_init() {
 		register_setting( 'scroll_wp_plugin_options', 'scroll_wp_options',
 				array( $this, 'validate_options' ) );
 	}
@@ -50,7 +47,7 @@ class ScrollKit {
 	/**
 	 * Adds a menu page that's accessible from the settings category in wp-admin
 	 */
-	public function action_admin_menu() {
+	public function filter_admin_menu() {
 		add_options_page( 'Scroll Kit', 'Scroll Kit', 'manage_options',
 				'scroll-kit', array( $this, 'render_settings_view' ) );
 	}
@@ -59,7 +56,7 @@ class ScrollKit {
 	 * Add the Scroll metabox to the post view so users can convert a post to a
 	 * scroll
 	 */
-	public function action_add_metaboxes() {
+	public function filter_add_metaboxes() {
 		add_meta_box( 'scroll', __( 'Scroll Kit', 'scroll' ),
 				array( $this, 'metabox' ), 'post', 'side', 'core' );
 
@@ -71,12 +68,14 @@ class ScrollKit {
 	 * Checks if the post is a scroll every time a post is loaded
 	 * and uses the appropriate template if there is a scroll
 	 */
-	public function action_template_redirect() {
+	public function filter_template_redirect() {
 
+		echo '$$$$$$$$$$$$$$$$$THISISBIG--------------------';
+		wp_die();
 		// deal with special scroll action calls - scrollkit will make these
 		// when a user hits 'done' on scroll kit
-		if ( get_query_var('scrollkit') ) {
-			$action = get_query_var('scrollkit');
+		if ( self::get_parameter( 'scrollkit' ) ) {
+			$action = self::get_parameter( 'scrollkit' );
 			if ( $action === 'update' ) {
 				// only scrollkit can hit the update endpoint
 				$this->handle_scrollkit_update_request();
@@ -95,16 +94,6 @@ class ScrollKit {
 			remove_filter( 'the_content', 'wpautop' );
 			add_filter( 'template_include', array( $this, 'load_template' ), 100 );
 		}
-	}
-
-	/**
-	 * Adds scrollkit to the list of query variables that wordpress pays
-	 * attention to
-	 */
-	public function filter_query_vars( $wp_vars ) {
-		$wp_vars[] = 'scrollkit';
-		$wp_vars[] = 'scrollkit_cms_id';
-		return $wp_vars;
 	}
 
 	/**
@@ -165,13 +154,22 @@ class ScrollKit {
 		@include dirname( __FILE__ ) . '/metabox-view.php';
 	}
 
+	//
+	// http://core.trac.wordpress.org/ticket/16373#comment:8
+	public static function get_parameter($get_parameter) {
+		$val = isset( $_GET[$get_parameter] ) ? $_GET[$get_parameter] : '';
+		$val = sanitize_text_field($post_id);
+		return $val;
+	}
+
 	/**
 	 * Handles all user requests that manipulate scroll data
 	 * e.g. update, deactive, activate, delete
 	 */
-	private function handle_user_action($method) {
+	public function handle_user_action($method) {
+		wp_die();
 
-		$post_id = get_query_var( 'scrollkit_cms_id' );
+		$post_id = self::get_parameter( 'scrollkit_cms_id' );
 
 		if ( !current_user_can( 'edit_post', $post_id ) ) {
 			wp_die( 'Insufficient permissions', '', array('response' => 401) );
@@ -227,7 +225,7 @@ class ScrollKit {
 	}
 
 	private function handle_scrollkit_update_request() {
-		$post_id = get_query_var( 'scrollkit_cms_id' );
+		$post_id = self::get_parameter( 'scrollkit_cms_id' );
 
 		if ( empty( $post_id ) ) {
 			$this->log_error_and_die( 'No post id provided' );
@@ -553,4 +551,5 @@ class ScrollKit {
 	}
 }
 
-new ScrollKit();
+global $scrollkit_wp;
+$scrollkit_wp = new ScrollKit();
