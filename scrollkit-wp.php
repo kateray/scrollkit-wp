@@ -153,14 +153,6 @@ class ScrollKit {
 		@include dirname( __FILE__ ) . '/metabox-view.php';
 	}
 
-	//
-	// http://core.trac.wordpress.org/ticket/16373#comment:8
-	public static function get_parameter($get_parameter) {
-		$val = isset( $_GET[$get_parameter] ) ? $_GET[$get_parameter] : '';
-		$val = sanitize_text_field($post_id);
-		return $val;
-	}
-
 	/**
 	 * Handles all user requests that manipulate scroll data
 	 * e.g. update, deactive, activate, delete
@@ -298,6 +290,16 @@ class ScrollKit {
 
 		// trigger update incase the user has a cache
 		clean_post_cache( $post_id );
+	}
+
+	/**
+	 * Don't bother registering query vars
+	 * http://core.trac.wordpress.org/ticket/16373#comment:8
+	 */
+	public static function get_parameter( $get_parameter ) {
+		$val = isset( $_GET[$get_parameter] ) ? $_GET[$get_parameter] : '';
+		$val = sanitize_text_field( $val );
+		return $val;
 	}
 
 	public static function sanitize_url_array( $unsafe_url_array ) {
