@@ -507,11 +507,14 @@ class ScrollKit {
 	}
 
 	/**
-	 * Sanitizes the api key
+	 * Sanitizes plugin options including api key, template header footer and styles
 	 */
 	public static function validate_options( $input ) {
 		$output = array();
 		$output['scrollkit_api_key'] = sanitize_text_field( $input['scrollkit_api_key'] );
+		$output['template_header'] = wp_filter_post_kses( $input['template_header'] );
+		$output['template_footer'] = wp_filter_post_kses( $input['template_footer'] );
+		$output['template_style'] = wp_filter_post_kses( $input['template_style'] );
 		return $output;
 	}
 
@@ -544,9 +547,13 @@ class ScrollKit {
 
 	public static function option_defaults() {
 		return array(
-			"scrollkit_api_key" => "",
+			"scrollkit_api_key" => '',
+			"template_header"   => '',
+			"template_footer"   => '',
+			"template_style"   => '',
 		);
 	}
+
 }
 
 global $scrollkit_wp;
