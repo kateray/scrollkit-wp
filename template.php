@@ -17,8 +17,10 @@
 			<?php echo get_post_meta(get_the_ID(), '_scroll_style', true); ?>
 			<?php echo stripslashes( $options['template_style'] ) ?>
 		</style>
+		<?php wp_head() ?>
 	</head>
 	<body class="published">
+
 		<?php echo stripslashes( $options['template_header'] ) ?>
 		<div id="skrollr-body">
 			<?php if (WP_DEBUG): ?>
@@ -38,5 +40,6 @@
 			<script src="<?php echo SCROLL_WP_SK_ASSET_URL . $script ?>" type="text/javascript"></script>
 		<?php endforeach ?>
 
+		<?php wp_footer() ?>
 	</body>
 </html>

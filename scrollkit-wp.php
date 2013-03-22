@@ -457,6 +457,8 @@ class ScrollKit {
 	 * Callback to replace the current template with our blank template
 	 */
 	public function load_template() {
+		// remove any styles or scripts that a theme would hook into
+		remove_all_actions('wp_enqueue_scripts');
 		return dirname( __FILE__ ) . '/template.php';
 	}
 
