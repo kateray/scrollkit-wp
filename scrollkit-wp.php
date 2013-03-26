@@ -17,7 +17,7 @@ if ( defined('SK_DEBUG_URL') ) {
 } else {
 	define( 'SCROLL_WP_SK_URL', 'http://www.scrollkit.com/' );
 	// TODO this should be some sort of CDN instead of our rails app
-	define( 'SCROLL_WP_SK_ASSET_URL', SCROLL_WP_SK_URL );
+	define( 'SCROLL_WP_SK_ASSET_URL', "https://scrollassets.s3.amazonaws.com/" );
 }
 
 define( 'SCROLL_WP_API', SCROLL_WP_SK_URL . 'api/' );
