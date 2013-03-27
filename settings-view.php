@@ -25,25 +25,6 @@
 
 
 		<table class="form-table">
-
-			<?php // print the errors stored in the option table ?>
-			<?php if ( array_key_exists( 'errors', $options ) ): ?>
-			<tr>
-				<th scope="row">Error Log</th>
-				<th>
-					Scroll Kit has encoutered the following errors:
-					<ul>
-					<?php foreach ( $options['errors'] as $error ): ?>
-						<li><?php echo esc_html($error) ?></li>
-					<?php endforeach ?>
-					</ul>
-					<p class="submit">
-						<input type="submit" class="button-primary" value="Clear Error Log" />
-					</p>
-				</th>
-			</tr>
-			<?php endif ?>
-
 			<tr>
 				<th scope="row">Scroll Kit API Key</th>
 				<td>
