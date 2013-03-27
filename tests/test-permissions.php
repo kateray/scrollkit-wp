@@ -3,6 +3,7 @@
 class SKDieException extends Exception {}
 class SKRedirectException extends Exception {}
 
+
 class PermissionsTest extends WP_UnitTestCase {
 	var $user_ids = array();
 

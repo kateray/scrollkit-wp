@@ -1,5 +1,7 @@
 <?php
 
+define('SK_DEBUG_URL', 'http://localhost:3000/');
+
 require_once getenv( 'WP_TESTS_DIR' ) . '/includes/functions.php';
 
 function _manually_load_plugin() {
