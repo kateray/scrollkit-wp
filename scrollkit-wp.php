@@ -15,12 +15,12 @@ if ( defined('SK_DEBUG_URL') ) {
 	define( 'SCROLL_WP_SK_URL', SK_DEBUG_URL );
 	define( 'SCROLL_WP_SK_ASSET_URL', SCROLL_WP_SK_URL );
 } else {
-	define( 'SCROLL_WP_SK_URL', 'http://www.scrollkit.com/' );
+	define( 'SCROLL_WP_SK_URL', 'http://www.scrollkit.com' );
 	// TODO this should be some sort of CDN instead of our rails app
-	define( 'SCROLL_WP_SK_ASSET_URL', "https://scrollassets.s3.amazonaws.com/" );
+	define( 'SCROLL_WP_SK_ASSET_URL', "https://scrollassets.s3.amazonaws.com" );
 }
 
-define( 'SCROLL_WP_API', SCROLL_WP_SK_URL . 'api/' );
+define( 'SCROLL_WP_API', SCROLL_WP_SK_URL . '/api' );
 define( 'SCROLL_WP_BASENAME', plugin_basename( __FILE__ ) );
 
 
@@ -524,7 +524,7 @@ class ScrollKit {
 	 * Gives the user a scrollkit url where they can edit the post
 	 */
 	public static function build_edit_url( $scrollkit_id ) {
-		return SCROLL_WP_SK_URL . "s/$scrollkit_id/edit";
+		return SCROLL_WP_SK_URL . "/s/$scrollkit_id/edit";
 	}
 
 	/**
@@ -532,7 +532,7 @@ class ScrollKit {
 	 * webfonts. e.g. http://www.scrollkit.com/s/qgPwxGA/content
 	 */
 	public static function build_content_url( $scrollkit_id ) {
-		return SCROLL_WP_SK_URL . "s/$scrollkit_id/content";
+		return SCROLL_WP_SK_URL . "/s/$scrollkit_id/content";
 	}
 
 	/**

@@ -13,7 +13,7 @@
 	<?php if ( $api_key_error && !$settings_updated): ?>
 		<div class="error">
 			<p>
-				There was an error with your API key. <a href="<?php echo SCROLL_WP_SK_URL ?>api/wp" target="_blank">Get yours here</a>
+				There was an error with your API key. <a href="<?php echo SCROLL_WP_SK_URL ?>/api/wp" target="_blank">Get yours here</a>
 			</p>
 		</div>
 	<?php endif ?>
