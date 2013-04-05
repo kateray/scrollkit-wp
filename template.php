@@ -23,7 +23,7 @@
 
 		<?php echo stripslashes( $options['template_header'] ) ?>
 		<div id="skrollr-body">
-			<?php if (WP_DEBUG): ?>
+			<?php if ( defined( 'WP_DEBUG' ) && WP_DEBUG ): ?>
 				<!--
 				scroll id: <?php echo get_post_meta(get_the_ID(), '_scroll_id', true) ?>
 				-->

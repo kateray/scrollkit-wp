@@ -250,10 +250,12 @@ class ScrollKit {
 	}
 
 	/**
-	 * Logs an error to our plugin's option table
+	 * Logs an error if debugging
 	 */
 	private function log_error( $error_message ) {
-		error_log( $error_message );
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( $error_message );
+		}
 	}
 
 	/**
