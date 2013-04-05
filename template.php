@@ -35,7 +35,6 @@
 
 		<?php echo stripslashes( $options['template_footer'] ) ?>
 
-		<div id="skrollr-body">
 		<?php foreach( get_post_meta( get_the_ID(), '_scroll_js', true) as $script): ?>
 			<script src="<?php echo SCROLL_WP_SK_ASSET_URL . $script ?>" type="text/javascript"></script>
 		<?php endforeach ?>
