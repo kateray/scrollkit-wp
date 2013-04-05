@@ -305,8 +305,8 @@ class ScrollKit {
 	public static function sanitize_url_array( $unsafe_url_array ) {
 		$sanitized_urls = array();
 		foreach ($unsafe_url_array as $unsafe_url) {
-			if ( esc_url( $unsafe_url ) !== '' ) {
-				$sanitized_urls[] = esc_url( $unsafe_url );
+			if ( esc_url_raw( $unsafe_url ) !== '' ) {
+				$sanitized_urls[] = esc_url_raw( $unsafe_url );
 			}
 		}
 		return $sanitized_urls;
