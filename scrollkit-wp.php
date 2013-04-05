@@ -16,7 +16,6 @@ if ( defined('SK_DEBUG_URL') ) {
 	define( 'SCROLL_WP_SK_ASSET_URL', SCROLL_WP_SK_URL );
 } else {
 	define( 'SCROLL_WP_SK_URL', 'http://www.scrollkit.com' );
-	// TODO this should be some sort of CDN instead of our rails app
 	define( 'SCROLL_WP_SK_ASSET_URL', "https://scrollassets.s3.amazonaws.com" );
 }
 
@@ -113,6 +112,7 @@ class ScrollKit {
 			<div id="sk-load-scroll" style="display:none">
 				<h2>Copy Existing Scroll</h2>
 				<form method="GET" action="<?php bloginfo('url') ?>">
+					<input type="hidden" name="nonce" value="<?php echo wp_create_nonce( 'scrollkit-action' ); ?>" />
 					<input type="hidden" name="scrollkit" value="load" />
 					<input type="hidden" name="scrollkit_cms_id" value="<?php the_ID() ?>" />
 					<input name="skid" placeholder="http://www.scrollkit.com/s/f0Z9WbS/" size="30" />
@@ -158,6 +158,10 @@ class ScrollKit {
 	 * e.g. update, deactive, activate, delete
 	 */
 	public function handle_user_action( $method, $post_id ) {
+
+		if ( ! wp_verify_nonce( $_REQUEST['nonce'], 'scrollkit-action' ) ) {
+			wp_die( 'Insufficient permissions (bad nonce)', '', array('response' => 401) );
+		}
 
 		if ( !current_user_can( 'edit_post', $post_id ) ) {
 			wp_die( 'Insufficient permissions', '', array('response' => 401) );

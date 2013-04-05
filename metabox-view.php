@@ -4,8 +4,30 @@
 $options = get_option( 'scroll_wp_options' );
 $scrollkit_id = get_post_meta( get_the_ID(), '_scroll_id', true );
 
+$nonce = wp_create_nonce( 'scrollkit-action' );
+
 $state = get_post_meta( get_the_ID(), '_scroll_state', true );
 
+$deactivate_link = add_query_arg(
+		array(
+			'nonce' => $nonce,
+			'scrollkit' => 'deactivate',
+			'scrollkit_cms_id' => get_the_ID()
+		), get_bloginfo('url') );
+
+$activate_link = add_query_arg(
+		array(
+			'nonce' => $nonce,
+			'scrollkit' => 'activate',
+			'scrollkit_cms_id' => get_the_ID()
+		), get_bloginfo('url') );
+
+$delete_link = add_query_arg(
+		array(
+			'nonce' => $nonce,
+			'scrollkit' => 'delete',
+			'scrollkit_cms_id' => get_the_ID()
+		), get_bloginfo('url') );
 
 $copy = array();
 
@@ -35,7 +57,7 @@ switch($state){
 <?php endif; ?>
 
 <?php if( $state !== 'active' ): ?>
-<a href="<?php bloginfo('url') ?>/?scrollkit=activate&scrollkit_cms_id=<?php the_ID() ?>"
+<a href="<?php echo $activate_link  ?>"
 		class="button js-sk-disable-on-dirty">
 	<?php echo $copy['activate'] ?>
 </a>
@@ -58,7 +80,7 @@ switch($state){
 <?php endif ?>
 
 <?php if ( $state === 'active' ): ?>
-<a href="<?php bloginfo('url') ?>/?scrollkit=deactivate&scrollkit_cms_id=<?php the_ID() ?>"
+<a href="<?php echo $deactivate_link  ?>"
 		title="Turn this back into a normal wordpress post"
 		class="button js-sk-disable-on-dirty">
 	Dectivate
@@ -66,7 +88,7 @@ switch($state){
 <?php endif ?>
 
 <?php if ( !empty( $state ) ): ?>
-<a href="<?php bloginfo('url') ?>/?scrollkit=delete&scrollkit_cms_id=<?php the_ID() ?>"
+<a href="<?php echo $delete_link ?>"
 		onclick="return confirm('This will permanently delete the scroll associated with this post, are you sure you want to delete it?');"
 		title="Permanently deletes the scroll associated with this post"
 		class="button js-sk-disable-on-dirty">
