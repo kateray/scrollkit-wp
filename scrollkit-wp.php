@@ -411,7 +411,7 @@ class ScrollKit {
 	 */
 	private function request_new_scroll( $data, $post_id ) {
 		// send the data to scrollkit
-		$response = wp_remote_post( SCROLL_WP_API . 'new',  array(
+		$response = wp_remote_post( SCROLL_WP_API . '/new',  array(
 				'method'      => 'POST',
 				'timeout'     => 45,
 				'redirection' => 5,
