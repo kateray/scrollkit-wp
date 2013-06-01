@@ -31,7 +31,7 @@ class ScrollKit {
 		add_filter( 'template_redirect'    , array( $this, 'filter_template_redirect' ) );
 		add_filter( 'admin_footer'         , array( $this, 'filter_admin_footer') );
 		add_filter( 'plugin_action_links'  , array( $this, 'filter_plugin_action_links' ), 10, 2 );
-		add_filter( 'admin_footer'         , array( $this, 'warning' ) );
+		add_filter( 'admin_notices'        , array( $this, 'warning' ) );
 
 		register_uninstall_hook( __FILE__  , array( 'Scroll', 'hook_delete_plugin_options' ) );
 	}
@@ -143,7 +143,7 @@ class ScrollKit {
 		$options = get_option( 'scroll_wp_options', self::option_defaults() );
 
 		if ( empty( $options['scrollkit_api_key'] ) ) {
-			echo '<div id="message" class="error"><p><strong>Scroll Kit is not active.</strong> You must <a href="' . menu_page_url( 'scroll-kit', false ) . '">add an API key</a> before it can work.</p></div>';
+			echo '<div class="error"><p><strong>Scroll Kit is not active.</strong> You must <a href="' . menu_page_url( 'scroll-kit', false ) . '">add an API key</a> before it can work.</p></div>';
 		}
 	} // end warning()
 
