@@ -454,7 +454,7 @@ class ScrollKit {
 			case 422:
 				// api key is incorrect, redirect the user to this plugin's setting page
 				// where there's a message indicating an api key issue
-				$destination = add_query_arg('api-key-error', 'true', menu_page_url( 'scroll-kit', false ) );
+				$destination = add_query_arg('api-key-error', 'true', esc_url( admin_url( 'admin.php?page=scroll-kit' . $menu_slug ) ) );
 
 				wp_safe_redirect( $destination );
 				exit;
