@@ -29,6 +29,13 @@ $delete_link = add_query_arg(
 			'scrollkit_cms_id' => get_the_ID()
 		), get_bloginfo('url') );
 
+$manually_update_link = add_query_arg(
+		array(
+			'nonce' => $nonce,
+			'scrollkit' => 'manualupdate',
+			'scrollkit_cms_id' => get_the_ID(),
+		), get_bloginfo('url') );
+
 $copy = array();
 
 switch($state){
@@ -79,6 +86,7 @@ switch($state){
 
 <?php endif ?>
 
+
 <?php if ( $state === 'active' ): ?>
 <a href="<?php echo $deactivate_link  ?>"
 		title="Turn this back into a normal wordpress post"
@@ -94,6 +102,18 @@ switch($state){
 		class="button js-sk-disable-on-dirty">
 	Delete
 </a>
+<?php endif ?>
+
+<?php if ( $state === 'active' ): ?>
+<p>
+	<small>
+		<a href="<?php echo $manually_update_link ?>"
+				title="Manually update if your server is not publically accessibly (e.g. testing)"
+				class="js-sk-disable-on-dirty">
+			manually update scroll
+		</a>
+	</small>
+</p>
 <?php endif ?>
 
 <div class="js-sk-enable-on-dirty" style="visibility: hidden; color: #a00">

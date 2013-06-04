@@ -221,6 +221,11 @@ class ScrollKit {
 			case 'delete':
 				$this->delete_post( $post_id );
 				break;
+
+			// manual update in case use is on a non-public facing server
+			case 'manualupdate':
+				$this->update_scroll_post( $post_id );
+				break;
 		}
 
 		wp_safe_redirect( get_edit_post_link( $post_id, '' ) );
@@ -243,6 +248,8 @@ class ScrollKit {
 		} else {
 			$this->log_error_and_die('Invalid api key', 401);
 		}
+
+		exit;
 	}
 
 	/**
