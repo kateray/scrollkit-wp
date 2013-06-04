@@ -3,7 +3,7 @@
 Plugin Name: Scroll Kit
 Plugin URI: http://scrollkit.com
 Description: Adds a button to send a page's content to the scroll kit design interface, which generates custom html and css that override the page's default template.
-Version: 0.101
+Version: 0.102
 Author: Scroll Kit
 Author URI: http://scrollkit.com
 License: GPL2
