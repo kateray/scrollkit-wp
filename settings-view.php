@@ -30,7 +30,7 @@
 				<td>
 					<input type="text" size="57" name="scroll_wp_options[scrollkit_api_key]" value="<?php echo esc_attr($options['scrollkit_api_key']); ?>" autocomplete="off" />
 					<br>
-				  <a href="https://www.scrollkit.com/api/wp" target="_blank">Get an api key</a>
+					<a href="<?php echo SCROLL_WP_SK_URL ?>/api/wp" target="_blank">Get an api key</a>
 				</td>
 			</tr>
 			<tr>
