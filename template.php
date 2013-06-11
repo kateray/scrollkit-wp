@@ -31,9 +31,8 @@
 				scroll id: <?php echo get_post_meta(get_the_ID(), '_scroll_id', true) ?>
 				-->
 			<?php endif ?>
-
-			<?php echo get_post_meta(get_the_ID(), '_scroll_content', true) ?>
-
+			<?php echo do_shortcode(get_post_meta(get_the_ID(), '_scroll_content', true)); ?>
+	
 		</div>
 
 		<?php echo stripslashes( $options['template_footer'] ) ?>
