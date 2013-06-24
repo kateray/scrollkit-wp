@@ -25,6 +25,7 @@ define( 'SCROLL_WP_BASENAME', plugin_basename( __FILE__ ) );
 
 class ScrollKit {
 	function __construct() {
+		add_filter( 'init'								 , array( $this, 'allow_data_tags' ) );
 		add_filter( 'admin_init'           , array( $this, 'filter_admin_init' ) );
 		add_filter( 'admin_menu'           , array( $this, 'filter_admin_menu') );
 		add_filter( 'add_meta_boxes'       , array( $this, 'filter_add_metaboxes' ) );
@@ -42,6 +43,18 @@ class ScrollKit {
 	public function filter_admin_init() {
 		register_setting( 'scroll_wp_plugin_options', 'scroll_wp_options',
 				array( $this, 'validate_options' ) );
+	}
+
+	public function allow_data_tags() {
+		global $allowedposttags;
+	 
+		$tags = array( 'div', 'img', 'a');
+		$new_attributes = array( 'data-anchor-target' => array(), 'data-skrollr' => array() );
+	 
+		foreach ( $tags as $tag ) {
+			if ( isset( $allowedposttags[ $tag ] ) && is_array( $allowedposttags[ $tag ] ) )
+				$allowedposttags[ $tag ] = array_merge( $allowedposttags[ $tag ], $new_attributes );
+		}
 	}
 
 	/**
