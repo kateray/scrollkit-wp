@@ -12,7 +12,7 @@
 		<?php $stylesheets = get_post_meta( get_the_ID(), '_scroll_css', true ) ?>
 		<?php if ( is_array ( $stylesheets ) ): ?>
 			<?php foreach ( $stylesheets as $stylesheet): ?>
-				<link href="<?php echo SCROLL_WP_SK_ASSET_URL . $stylesheet ?>" media="screen" rel="stylesheet" type="text/css" />
+				<link href="<?php echo esc_url( SCROLL_WP_SK_ASSET_URL . $stylesheet ); ?>" media="screen" rel="stylesheet" type="text/css" />
 			<?php endforeach; ?>
 		<?php endif; ?>
 
@@ -40,7 +40,7 @@
 		<?php $scripts = get_post_meta( get_the_ID(), '_scroll_js', true); ?>
 		<?php if ( is_array($scripts) ) : ?>
 			<?php foreach( get_post_meta( get_the_ID(), '_scroll_js', true) as $script): ?>
-				<script src="<?php echo SCROLL_WP_SK_ASSET_URL . $script ?>" type="text/javascript"></script>
+				<script src="<?php echo esc_url( SCROLL_WP_SK_ASSET_URL . $script ); ?>" type="text/javascript"></script>
 			<?php endforeach ?>
 		<?php endif ?>
 
