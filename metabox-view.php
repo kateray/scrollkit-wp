@@ -8,6 +8,8 @@ $nonce = wp_create_nonce( 'scrollkit-action' );
 
 $state = get_post_meta( get_the_ID(), '_scroll_state', true );
 
+$mobile_redirect = get_post_meta( get_the_ID(), '_scroll_mobile_redirect', true);
+
 $deactivate_link = add_query_arg(
 		array(
 			'nonce' => $nonce,
@@ -33,6 +35,20 @@ $manually_update_link = add_query_arg(
 		array(
 			'nonce' => $nonce,
 			'scrollkit' => 'manualupdate',
+			'scrollkit_cms_id' => get_the_ID(),
+		), get_bloginfo('url') );
+
+$mobile_redirect_on_link = add_query_arg(
+		array(
+			'nonce' => $nonce,
+			'scrollkit' => 'mobileredirecton',
+			'scrollkit_cms_id' => get_the_ID(),
+		), get_bloginfo('url') );
+
+$mobile_redirect_off_link = add_query_arg(
+		array(
+			'nonce' => $nonce,
+			'scrollkit' => 'mobileredirectoff',
 			'scrollkit_cms_id' => get_the_ID(),
 		), get_bloginfo('url') );
 
@@ -91,7 +107,7 @@ switch($state){
 <a href="<?php echo $deactivate_link  ?>"
 		title="Turn this back into a normal wordpress post"
 		class="button js-sk-disable-on-dirty">
-	Dectivate
+	Deactivate
 </a>
 <?php endif ?>
 
@@ -114,6 +130,21 @@ switch($state){
 		</a>
 	</small>
 </p>
+
+<?php if ( $mobile_redirect === 'on' ): ?>
+<a href="<?php echo $mobile_redirect_off_link  ?>"
+		title="On mobile browsers, render a scroll"
+		class="button js-sk-disable-on-dirty">
+	Don't Redirect on Mobile
+</a>
+<?php endif ?>
+<?php if ( $mobile_redirect !== 'on' ): ?>
+<a href="<?php echo $mobile_redirect_on_link  ?>"
+		title="On mobile browsers, don't render a scroll"
+		class="button js-sk-disable-on-dirty">
+	Redirect on Mobile
+</a>
+<?php endif ?>
 <?php endif ?>
 
 <div class="js-sk-enable-on-dirty" style="visibility: hidden; color: #a00">
