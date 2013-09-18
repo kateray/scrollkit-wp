@@ -87,7 +87,7 @@ switch($state){
 
 <a href="#TB_inline?height=155&width=300&inlineId=sk-load-scroll"
 	class="button thickbox js-sk-disable-on-dirty">
-	Copy Existing Scroll
+	Use Existing Scroll
 </a>
 <?php else: ?>
 
