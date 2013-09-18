@@ -48,14 +48,22 @@ class ScrollKit {
 
 	public function allow_data_tags() {
 		global $allowedposttags;
-	 
+
 		$tags = array( 'div', 'img', 'a');
 		$new_attributes = array( 'data-anchor-target' => array(), 'data-skrollr' => array() );
-	 
+
 		foreach ( $tags as $tag ) {
 			if ( isset( $allowedposttags[ $tag ] ) && is_array( $allowedposttags[ $tag ] ) )
 				$allowedposttags[ $tag ] = array_merge( $allowedposttags[ $tag ], $new_attributes );
 		}
+
+		// Let people add external stylesheets for fonts/styles
+		$allowedposttags['link'] = array(
+			'href' => true,
+			'rel' => true,
+			'type' => true,
+			'media' => true
+		);
 	}
 
 	/**
