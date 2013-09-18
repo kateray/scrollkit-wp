@@ -337,7 +337,7 @@ class ScrollKit {
 
 		$response_code = $results['response']['code'];
 		if ( $response_code !== 200 ) {
-			$this->log_error_and_die( "Error requesting content from $content_url, error code  " . $response_code );
+			$this->log_error_and_die( "Error requesting content from $content_url, error code $response_code<br><br>" . $results['body'] );
 		}
 
 		$data = json_decode( $results['body'] );
