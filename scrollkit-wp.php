@@ -139,7 +139,7 @@ class ScrollKit {
 
 		?>
 			<div id="sk-load-scroll" style="display:none">
-				<h2>Copy Existing Scroll</h2>
+				<h2>Use Existing Scroll</h2>
 				<form method="GET" action="<?php bloginfo('url') ?>">
 					<input type="hidden" name="nonce" value="<?php echo wp_create_nonce( 'scrollkit-action' ); ?>" />
 					<input type="hidden" name="scrollkit" value="load" />
@@ -344,10 +344,10 @@ class ScrollKit {
 
 		update_post_meta( $post_id , '_scroll_content' , wp_filter_post_kses( $data->content ) );
 		update_post_meta( $post_id , '_scroll_style'   , wp_filter_post_kses( $data->style ) );
+		update_post_meta( $post_id , '_scroll_head'   , wp_filter_post_kses( $data->head_html ) );
 		update_post_meta( $post_id , '_scroll_js'      , $this->sanitize_url_array( $data->js_paths ) );
 		update_post_meta( $post_id , '_scroll_fonts'   , $this->sanitize_text_array( $data->google_web_fonts ) );
 		update_post_meta( $post_id , '_scroll_css'     , $this->sanitize_url_array( $data->css_paths ) );
-
 		// trigger update incase the user has a cache
 		clean_post_cache( $post_id );
 	}
@@ -543,6 +543,7 @@ class ScrollKit {
 		delete_post_meta( $post_id, '_scroll_style' );
 		delete_post_meta( $post_id, '_scroll_js' );
 		delete_post_meta( $post_id, '_scroll_fonts' );
+		delete_post_meta( $post_id, '_scroll_head' );
 		delete_post_meta( $post_id, '_scroll_css' );
 		delete_post_meta( $post_id, '_scroll_mobile_redirect' );
 	}

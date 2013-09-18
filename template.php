@@ -8,6 +8,7 @@
 		<?php if ( get_post_meta( get_the_ID(), '_scroll_fonts', true ) ): ?>
 			<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=<?php echo join('|', get_post_meta( get_the_ID(), '_scroll_fonts', true ) ) ?>">
 		<?php endif ?>
+		<?php echo get_post_meta(get_the_ID(), '_scroll_head', true); ?>
 
 		<?php $stylesheets = get_post_meta( get_the_ID(), '_scroll_css', true ) ?>
 		<?php if ( is_array ( $stylesheets ) ): ?>
