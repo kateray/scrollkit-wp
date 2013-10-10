@@ -34,6 +34,7 @@ class ScrollKit {
 		add_filter( 'admin_footer'         , array( $this, 'filter_admin_footer') );
 		add_filter( 'plugin_action_links'  , array( $this, 'filter_plugin_action_links' ), 10, 2 );
 		add_filter( 'admin_notices'        , array( $this, 'warning' ) );
+		add_shortcode( 'sk_ad_script'			 , array( $this, 'shortcode_ad_scripts') );
 
 		register_uninstall_hook( __FILE__  , array( 'Scroll', 'hook_delete_plugin_options' ) );
 	}
@@ -64,6 +65,10 @@ class ScrollKit {
 			'type' => true,
 			'media' => true
 		);
+	}
+
+	public function shortcode_ad_scripts($atts, $content = null) {
+		return '<script src="' . $atts['url'] . '";</script>';
 	}
 
 	/**
