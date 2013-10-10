@@ -50,7 +50,7 @@ class ScrollKit {
 		global $allowedposttags;
 
 		$tags = array( 'div', 'img', 'a');
-		$new_attributes = array( 'data-anchor-target' => array(), 'data-skrollr' => array() );
+		$new_attributes = array( 'data-anchor-target' => array(), 'data-skrollr' => array(), 'data-responsive' => array() );
 
 		foreach ( $tags as $tag ) {
 			if ( isset( $allowedposttags[ $tag ] ) && is_array( $allowedposttags[ $tag ] ) )
