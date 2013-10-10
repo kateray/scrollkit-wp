@@ -68,7 +68,7 @@ class ScrollKit {
 	}
 
 	public function shortcode_ad_scripts($atts, $content = null) {
-		return '<script src="' . $atts['url'] . '";</script>';
+		return '<script src="' . $atts['url'] . ';"</script>';
 	}
 
 	/**
