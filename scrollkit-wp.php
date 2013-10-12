@@ -374,32 +374,18 @@ class ScrollKit {
 	}
 
 	// from https://gist.github.com/mjangda/1623788
-	private function is_valid_domain( $url ) {
-		$options = get_option( 'scroll_wp_options', self::option_defaults() );
-		$whitelisted_domains = $options['adserver_whitelist'];
-		$domain = parse_url( $url, PHP_URL_HOST );
-
-		// Check if we match the domain exactly
-		if ( in_array( $domain, $whitelisted_domains ) )
-			return true;
-
-		$valid = false;
-
-		foreach( $whitelisted_domains as $whitelisted_domain ) {
-			$whitelisted_domain = '.' . $whitelisted_domain; // Prevent things like 'evilsitetime.com'
-			if( strpos( $domain, $whitelisted_domain ) === ( strlen( $domain ) - strlen( $whitelisted_domain ) ) ) {
-				$valid = true;
-				break;
-			}
-		}
-		return $valid;
-	}
 
 	public static function sanitize_ad_script_url_array( $unsafe_ad_url_array ) {
 		$sanitized_ad_urls = array();
+		$options = get_option( 'scroll_wp_options', self::option_defaults() );
+		$whitelisted_domains = $options['adserver_whitelist'];
 		foreach ($unsafe_ad_url_array as $unsafe_ad_url) {
-			if ( esc_url_raw($unsafe_ad_url) !== '' ) {
-				$sanitized_ad_urls[] = esc_url_raw( $unsafe_ad_url );
+			if ( esc_url_raw($unsafe_ad_url) ) {
+				$domain = parse_url( $unsafe_ad_url, PHP_URL_HOST );
+				if ( in_array( $domain, $whitelisted_domains ) ){
+					$sanitized_ad_urls[] = esc_url_raw( $unsafe_ad_url );
+				}
+
 			}
 		}
 		return $sanitized_ad_urls;
