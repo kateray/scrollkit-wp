@@ -91,6 +91,19 @@
 					?></textarea>
 				</td>
 			</tr>
+			<tr>
+				<td>
+					<p>
+						Whitelisted Ad Servers
+					</p>
+					<em>
+						List asdfasdf (separated by comma)
+					</em>
+				</td>
+				<td>
+					<input type="text" size="100" name="scroll_wp_options[adserver_whitelist]" value="<?php echo esc_attr(implode(", ", $options['adserver_whitelist'])); ?>" autocomplete="off" />
+				</td>
+			</tr>
 		</table>
 		<p class="submit">
 			<input type="submit" class="button-primary" value="<?php _e('Save Changes') ?>" />

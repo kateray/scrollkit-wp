@@ -346,6 +346,7 @@ class ScrollKit {
 		update_post_meta( $post_id , '_scroll_style'   , wp_filter_post_kses( $data->style ) );
 		update_post_meta( $post_id , '_scroll_head'   , wp_filter_post_kses( $data->head_html ) );
 		update_post_meta( $post_id , '_scroll_js'      , $this->sanitize_url_array( $data->js_paths ) );
+		update_post_meta( $post_id , '_scroll_ad_js'   , $this->sanitize_ad_script_url_array( $data->ad_js_paths ) );
 		update_post_meta( $post_id , '_scroll_fonts'   , $this->sanitize_text_array( $data->google_web_fonts ) );
 		update_post_meta( $post_id , '_scroll_css'     , $this->sanitize_url_array( $data->css_paths ) );
 		// trigger update incase the user has a cache
@@ -370,6 +371,38 @@ class ScrollKit {
 			}
 		}
 		return $sanitized_urls;
+	}
+
+	// from https://gist.github.com/mjangda/1623788
+	private function is_valid_domain( $url ) {
+		$options = get_option( 'scroll_wp_options', self::option_defaults() );
+		$whitelisted_domains = $options['adserver_whitelist'];
+		$domain = parse_url( $url, PHP_URL_HOST );
+
+		// Check if we match the domain exactly
+		if ( in_array( $domain, $whitelisted_domains ) )
+			return true;
+
+		$valid = false;
+
+		foreach( $whitelisted_domains as $whitelisted_domain ) {
+			$whitelisted_domain = '.' . $whitelisted_domain; // Prevent things like 'evilsitetime.com'
+			if( strpos( $domain, $whitelisted_domain ) === ( strlen( $domain ) - strlen( $whitelisted_domain ) ) ) {
+				$valid = true;
+				break;
+			}
+		}
+		return $valid;
+	}
+
+	public static function sanitize_ad_script_url_array( $unsafe_ad_url_array ) {
+		$sanitized_ad_urls = array();
+		foreach ($unsafe_ad_url_array as $unsafe_ad_url) {
+			if ( esc_url_raw($unsafe_ad_url) !== '' ) {
+				$sanitized_ad_urls[] = esc_url_raw( $unsafe_ad_url );
+			}
+		}
+		return $sanitized_ad_urls;
 	}
 
 	public static function sanitize_text_array( $unsafe_text_array ) {
@@ -542,6 +575,7 @@ class ScrollKit {
 		delete_post_meta( $post_id, '_scroll_content' );
 		delete_post_meta( $post_id, '_scroll_style' );
 		delete_post_meta( $post_id, '_scroll_js' );
+		delete_post_meta( $post_id, '_scroll_ad_js' );
 		delete_post_meta( $post_id, '_scroll_fonts' );
 		delete_post_meta( $post_id, '_scroll_head' );
 		delete_post_meta( $post_id, '_scroll_css' );
@@ -583,6 +617,7 @@ class ScrollKit {
 		$output['template_header'] = wp_filter_post_kses( $input['template_header'] );
 		$output['template_footer'] = wp_filter_post_kses( $input['template_footer'] );
 		$output['template_style'] = wp_filter_post_kses( $input['template_style'] );
+		$output['adserver_whitelist'] = array_map('trim',explode(",", $input['adserver_whitelist']));
 		return $output;
 	}
 
@@ -619,6 +654,7 @@ class ScrollKit {
 			"template_header"   => '',
 			"template_footer"   => '',
 			"template_style"   => '',
+			"adserver_whitelist" => '',
 		);
 	}
 

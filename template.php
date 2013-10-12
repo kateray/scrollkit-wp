@@ -33,7 +33,7 @@
 				-->
 			<?php endif ?>
 			<?php echo do_shortcode(get_post_meta(get_the_ID(), '_scroll_content', true)); ?>
-	
+
 		</div>
 
 		<?php echo stripslashes( $options['template_footer'] ) ?>
@@ -42,6 +42,13 @@
 		<?php if ( is_array($scripts) ) : ?>
 			<?php foreach( get_post_meta( get_the_ID(), '_scroll_js', true) as $script): ?>
 				<script src="<?php echo esc_url( SCROLL_WP_SK_ASSET_URL . $script ); ?>" type="text/javascript"></script>
+			<?php endforeach ?>
+		<?php endif ?>
+
+		<?php $ad_scripts = get_post_meta( get_the_ID(), '_scroll_ad_js', true); ?>
+		<?php if ( is_array($ad_scripts) ) : ?>
+			<?php foreach( get_post_meta( get_the_ID(), '_scroll_ad_js', true) as $ad_script): ?>
+				<script src="<?php echo esc_url( $ad_script ); ?>" type="text/javascript"></script>
 			<?php endforeach ?>
 		<?php endif ?>
 
