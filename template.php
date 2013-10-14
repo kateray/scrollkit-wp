@@ -38,6 +38,8 @@
 
 		<?php echo stripslashes( $options['template_footer'] ) ?>
 
+		<?php wp_footer() ?>
+
 		<?php $scripts = get_post_meta( get_the_ID(), '_scroll_js', true); ?>
 		<?php if ( is_array($scripts) ) : ?>
 			<?php foreach( get_post_meta( get_the_ID(), '_scroll_js', true) as $script): ?>
@@ -52,6 +54,5 @@
 			<?php endforeach ?>
 		<?php endif ?>
 
-		<?php wp_footer() ?>
 	</body>
 </html>
