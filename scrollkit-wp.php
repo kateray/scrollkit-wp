@@ -3,7 +3,7 @@
 Plugin Name: Scroll Kit
 Plugin URI: http://scrollkit.com
 Description: Adds a button to send a page's content to the scroll kit design interface, which generates custom html and css that override the page's default template.
-Version: 0.112
+Version: 0.113
 Author: Scroll Kit
 Author URI: http://scrollkit.com
 License: GPL2
@@ -50,7 +50,7 @@ class ScrollKit {
 		global $allowedposttags;
 
 		$tags = array( 'div', 'img', 'a');
-		$new_attributes = array( 'data-anchor-target' => array(), 'data-skrollr' => array(), 'data-responsive' => array() );
+		$new_attributes = array( 'data-anchor-target' => array(), 'data-skrollr' => array(), 'data-responsive' => array(), 'data-ooyala' => array() );
 
 		foreach ( $tags as $tag ) {
 			if ( isset( $allowedposttags[ $tag ] ) && is_array( $allowedposttags[ $tag ] ) )
