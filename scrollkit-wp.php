@@ -3,7 +3,7 @@
 Plugin Name: Scroll Kit
 Plugin URI: http://scrollkit.com
 Description: Adds a button to send a page's content to the scroll kit design interface, which generates custom html and css that override the page's default template.
-Version: 0.114
+Version: 0.115
 Author: Scroll Kit
 Author URI: http://scrollkit.com
 License: GPL2
@@ -336,7 +336,7 @@ class ScrollKit {
 		}
 
 		$response_code = $results['response']['code'];
-		if ( $response_code !== 200 || $response_code !== '200') {
+		if ( (int)$response_code !== 200 ) {
 			$this->log_error_and_die( "Error requesting content from $content_url, error code $response_code<br><br>" . $results['body'] );
 		}
 
